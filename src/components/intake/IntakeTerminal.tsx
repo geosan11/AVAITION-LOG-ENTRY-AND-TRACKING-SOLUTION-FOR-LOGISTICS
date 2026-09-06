@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { Plane, Wifi, WifiOff, CheckCircle, ArrowLeft } from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { fetchRateCard, calculateCargoPricing, PricingBreakdown } from "@/lib/pricing";
 import { offlineDb } from "@/lib/offline/db";
 import { queueSyncItem, useOnlineStatus } from "@/lib/offline/sync";
@@ -233,7 +233,7 @@ export const IntakeTerminal: React.FC<IntakeTerminalProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-surface-card border border-border shadow-xs">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-accent-amber/15 border border-accent-amber/30 text-accent-amber flex items-center justify-center shrink-0">
-            <Plane size={20} />
+            <Icon name="flight_takeoff" size={20} />
           </div>
           <div>
             <div className="text-sm font-bold text-foreground flex items-center gap-1.5">
@@ -249,11 +249,11 @@ export const IntakeTerminal: React.FC<IntakeTerminalProps> = ({
 
         <div className="flex items-center gap-2">
           {isOnline ? (
-            <Badge tone="success" dot icon={Wifi} size="sm">
+            <Badge tone="success" dot icon="wifi" size="sm">
               Live Cloud Connected
             </Badge>
           ) : (
-            <Badge tone="warning" dot icon={WifiOff} size="sm">
+            <Badge tone="warning" dot icon="wifi_off" size="sm">
               Offline Mode ({pendingSyncCount} in queue)
             </Badge>
           )}
@@ -266,7 +266,7 @@ export const IntakeTerminal: React.FC<IntakeTerminalProps> = ({
           <div className="flex items-center justify-between p-4 rounded-xl bg-success-bg border border-success-border">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-success text-white flex items-center justify-center">
-                <CheckCircle size={18} />
+                <Icon name="check_circle" size={18} />
               </div>
               <div>
                 <div className="text-sm font-bold text-foreground">
@@ -280,7 +280,7 @@ export const IntakeTerminal: React.FC<IntakeTerminalProps> = ({
             <Button
               variant="secondary"
               size="sm"
-              iconLeft={ArrowLeft}
+              iconLeft="arrow_back"
               onClick={() => setIssuedShipment(null)}
             >
               Back to Desk Intake

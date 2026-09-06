@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { Icon } from './Icon';
 import { ICON } from '@/lib/ui';
 
 export type SheetSide = 'bottom' | 'right';
@@ -73,7 +73,7 @@ export const Sheet: React.FC<SheetProps> = ({
             className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
             aria-label="Close sheet"
           >
-            <X size={ICON.md} aria-hidden="true" />
+            <Icon name="close" size={ICON.md} />
           </button>
         </div>
 

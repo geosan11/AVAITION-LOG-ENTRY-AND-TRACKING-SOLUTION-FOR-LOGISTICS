@@ -40,8 +40,6 @@ export default defineConfig({
           'vendor-supabase': ['@supabase/supabase-js'],
           // Offline database
           'vendor-dexie':    ['dexie'],
-          // Icon library — split separately so it can be cached independently
-          'vendor-lucide':   ['lucide-react'],
         },
       },
     },

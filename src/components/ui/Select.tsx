@@ -1,5 +1,5 @@
 import React, { forwardRef, useId } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { Icon } from './Icon';
 import { ICON } from '@/lib/ui';
 
 export interface SelectOption {
@@ -52,10 +52,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
           aria-describedby={error ? `${selectId}-error` : undefined}
           className={`
             w-full h-11 pl-3.5 pr-10 rounded-md text-sm transition-all appearance-none cursor-pointer
-            bg-surface-sunken text-foreground border
+            bg-surface-container-lowest text-on-surface border
             ${error ? 'border-error ring-1 ring-error/30' : 'border-border focus:border-accent-amber focus:ring-2 focus:ring-accent-amber/20'}
             placeholder:text-muted/60
-            disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-surface-2
+            disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-surface-container
             focus:outline-none font-sans
             ${className}
           `}
@@ -71,7 +71,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(({
         </select>
 
         <div className="absolute right-3.5 text-muted pointer-events-none flex items-center justify-center">
-          <ChevronDown size={ICON.sm} aria-hidden="true" />
+          <Icon name="expand_more" size={ICON.sm} />
         </div>
       </div>
 

@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { TextField } from "@/components/ui/TextField";
-import { Plane } from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { AIRPORT_HUBS } from "@/lib/ui";
 import { ShipmentType } from "@/lib/types/database";
 
@@ -43,7 +43,7 @@ export const FlightRouteSection: React.FC<FlightRouteSectionProps> = ({
     <Card
       header={
         <span className="text-sm font-bold text-foreground flex items-center gap-2">
-          <Plane size={15} className="text-accent-amber" />
+          <Icon name="flight_takeoff" size={15} className="text-accent-amber" />
           1. Flight Routing & Cargo Category
         </span>
       }

@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/TextField";
-import { User, Phone } from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { IntakeValidationErrors } from "@/lib/validation/intake";
 
 export interface ContactsSectionProps {
@@ -33,7 +33,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
     <Card
       header={
         <span className="text-sm font-bold text-foreground flex items-center gap-2">
-          <User size={15} className="text-accent-amber" />
+          <Icon name="contacts" size={15} className="text-accent-amber" />
           2. Shipper & Consignee Manifest Details
         </span>
       }
@@ -45,7 +45,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
           onChange={(e) => setSenderName(e.target.value)}
           onBlur={() => onBlurField("senderName")}
           placeholder="e.g. Dangote Oil Refining Co."
-          iconLeft={User}
+          iconLeft="person"
           error={errors.senderName}
         />
 
@@ -55,7 +55,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
           onChange={(e) => setSenderPhone(e.target.value)}
           onBlur={() => onBlurField("senderPhone")}
           placeholder="08012345678"
-          iconLeft={Phone}
+          iconLeft="call"
           mono
           error={errors.senderPhone}
           hint="Automated departure SMS will be sent"
@@ -67,7 +67,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
           onChange={(e) => consigneeNameSet(e.target.value)}
           onBlur={() => onBlurField("consigneeName")}
           placeholder="e.g. John Okoro"
-          iconLeft={User}
+          iconLeft="person"
           error={errors.consigneeName}
         />
 
@@ -77,7 +77,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
           onChange={(e) => setConsigneePhone(e.target.value)}
           onBlur={() => onBlurField("consigneePhone")}
           placeholder="08098765432"
-          iconLeft={Phone}
+          iconLeft="call"
           mono
           error={errors.consigneePhone}
           hint="Pickup verification PIN will be dispatched here"

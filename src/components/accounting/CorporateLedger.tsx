@@ -5,16 +5,7 @@ import { TextField } from "@/components/ui/TextField";
 import { Select } from "@/components/ui/Select";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
-import {
-  Building2,
-  Plus,
-  DollarSign,
-  FileText,
-  Phone,
-  Mail,
-  Printer,
-  TrendingUp,
-} from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { formatCurrency } from "@/lib/ui";
 
 export interface CorporateClient {
@@ -117,7 +108,7 @@ export const CorporateLedger: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-            <Building2 className="text-accent-amber" size={20} />
+            <Icon name="account_balance" className="text-accent-amber" size={20} />
             B2B Corporate Credit Ledger & Invoicing
           </h2>
           <p className="text-xs text-muted mt-0.5">
@@ -128,7 +119,7 @@ export const CorporateLedger: React.FC = () => {
         <Button
           variant="primary"
           size="sm"
-          iconLeft={Plus}
+          iconLeft="add"
           onClick={() => setShowAddModal(true)}
         >
           New Corporate Account
@@ -140,7 +131,7 @@ export const CorporateLedger: React.FC = () => {
         <Card className="p-4 bg-surface-card border-border">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted">Active Institutional Accounts</span>
-            <Building2 size={16} className="text-accent-amber" />
+            <Icon name="apartment" size={16} className="text-accent-amber" />
           </div>
           <div className="text-2xl font-black font-mono text-foreground mt-2">
             {clients.length} Corporate Accounts
@@ -151,7 +142,7 @@ export const CorporateLedger: React.FC = () => {
         <Card className="p-4 bg-surface-card border-border">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted">Total Approved Credit Facility</span>
-            <DollarSign size={16} className="text-success" />
+            <Icon name="paid" size={16} className="text-success" />
           </div>
           <div className="text-2xl font-black font-mono text-foreground mt-2">
             {formatCurrency(totalCreditExtended)}
@@ -162,7 +153,7 @@ export const CorporateLedger: React.FC = () => {
         <Card className="p-4 bg-surface-card border-accent-amber/40">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted">Current Outstanding Receivables</span>
-            <TrendingUp size={16} className="text-accent-amber" />
+            <Icon name="trending_up" size={16} className="text-accent-amber" />
           </div>
           <div className="text-2xl font-black font-mono text-accent-amber mt-2">
             {formatCurrency(totalOutstandingBalance)}
@@ -202,14 +193,14 @@ export const CorporateLedger: React.FC = () => {
                     <td className="py-3.5 px-4">
                       <div className="font-bold text-foreground text-sm">{client.companyName}</div>
                       <div className="text-[11px] text-muted flex items-center gap-1.5 mt-0.5">
-                        <Mail size={11} /> {client.contactEmail}
+                        <Icon name="mail" size={11} /> {client.contactEmail}
                       </div>
                     </td>
 
                     <td className="py-3.5 px-4">
                       <div className="font-medium text-foreground">{client.contactName}</div>
                       <div className="text-[11px] text-muted font-mono flex items-center gap-1.5 mt-0.5">
-                        <Phone size={11} /> {client.contactPhone}
+                        <Icon name="call" size={11} /> {client.contactPhone}
                       </div>
                     </td>
 
@@ -265,7 +256,7 @@ export const CorporateLedger: React.FC = () => {
                       <Button
                         variant="secondary"
                         size="sm"
-                        iconLeft={FileText}
+                        iconLeft="description"
                         onClick={() => {
                           setSelectedClient(client);
                           setShowStatementModal(true);
@@ -293,7 +284,7 @@ export const CorporateLedger: React.FC = () => {
             <Button variant="ghost" onClick={() => setShowAddModal(false)}>
               Cancel
             </Button>
-            <Button variant="primary" iconLeft={Plus} onClick={handleCreateClient}>
+            <Button variant="primary" iconLeft="add" onClick={handleCreateClient}>
               Create Account
             </Button>
           </>
@@ -368,7 +359,7 @@ export const CorporateLedger: React.FC = () => {
               <Button variant="ghost" onClick={() => setShowStatementModal(false)}>
                 Close
               </Button>
-              <Button variant="primary" iconLeft={Printer} onClick={() => window.print()}>
+              <Button variant="primary" iconLeft="print" onClick={() => window.print()}>
                 Print / Export PDF Statement
               </Button>
             </>

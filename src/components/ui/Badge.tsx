@@ -1,5 +1,5 @@
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { Icon } from './Icon';
 import { ICON } from '@/lib/ui';
 
 export type BadgeTone = 'success' | 'error' | 'warning' | 'info' | 'amber' | 'purple' | 'neutral';
@@ -10,7 +10,8 @@ export interface BadgeProps {
   tone?: BadgeTone;
   size?: BadgeSize;
   dot?: boolean;
-  icon?: LucideIcon;
+  /** Material Symbols glyph name. */
+  icon?: string;
   className?: string;
 }
 
@@ -19,7 +20,7 @@ export const Badge: React.FC<BadgeProps> = ({
   tone = 'neutral',
   size = 'md',
   dot = false,
-  icon: Icon,
+  icon,
   className = ''
 }) => {
   const toneClasses: Record<BadgeTone, string> = {
@@ -62,7 +63,7 @@ export const Badge: React.FC<BadgeProps> = ({
           aria-hidden="true"
         />
       )}
-      {Icon && <Icon size={size === 'sm' ? ICON.xs : ICON.sm} aria-hidden="true" />}
+      {icon && <Icon name={icon} size={size === 'sm' ? ICON.xs : ICON.sm} />}
       <span>{children}</span>
     </span>
   );

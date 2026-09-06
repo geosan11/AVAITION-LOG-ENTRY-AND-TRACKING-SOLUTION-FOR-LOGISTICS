@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { TextField } from "@/components/ui/TextField";
-import { CreditCard, Printer, ShieldCheck } from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { formatCurrency } from "@/lib/ui";
 import { PricingBreakdown } from "@/lib/pricing";
 import { PaymentMode } from "@/lib/types/database";
@@ -46,7 +46,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
       header={
         <div className="flex items-center justify-between w-full">
           <span className="text-sm font-bold text-foreground flex items-center gap-2">
-            <CreditCard size={15} className="text-accent-amber" />
+            <Icon name="receipt_long" size={15} className="text-accent-amber" />
             Live Billing & Settlement Breakdown
           </span>
           <Badge tone="amber" dot>
@@ -61,7 +61,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
           fullWidth
           loading={submitting}
           loadingLabel="Authorizing Waybill..."
-          iconLeft={Printer}
+          iconLeft="print"
           onClick={onRequestIssue}
         >
           Verify & Issue Waybill
@@ -71,7 +71,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
       {!pricing || loadingRate ? (
         <div className="text-xs text-muted py-8 text-center flex flex-col items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-surface-2 flex items-center justify-center text-muted">
-            <CreditCard size={16} />
+            <Icon name="credit_card" size={16} />
           </div>
           <span>{loadingRate ? "Retrieving station rate card..." : "Enter route and cargo weight to calculate billing"}</span>
         </div>
@@ -120,7 +120,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
             {pricing.insuranceFee > 0 && (
               <div className="flex justify-between items-center text-accent-amber">
                 <span className="flex items-center gap-1">
-                  <ShieldCheck size={13} /> Cargo Valuation Cover (0.5%):
+                  <Icon name="verified_user" size={13} /> Cargo Valuation Cover (0.5%):
                 </span>
                 <span className="font-mono font-semibold">{formatCurrency(pricing.insuranceFee)}</span>
               </div>

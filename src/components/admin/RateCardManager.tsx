@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Button, TextField, Select, Card, Badge } from "@/components/ui";
-import { Plus, DollarSign, ToggleLeft, ToggleRight, ChevronDown, ChevronUp, TrendingUp } from "lucide-react";
+import { Button, TextField, Select, Card, Badge, Icon } from "@/components/ui";
 import { AIRPORT_HUBS, formatCurrency } from "@/lib/ui";
 
 interface LocalRateCard {
@@ -78,11 +77,11 @@ export const RateCardManager: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-            <TrendingUp size={16} className="text-accent-amber" /> Rate Card Management
+            <Icon name="trending_up" size={16} className="text-accent-amber" /> Rate Card Management
           </h2>
           <p className="text-xs text-muted mt-0.5">Operators control freight rates here — no code changes required.</p>
         </div>
-        <Button variant="primary" size="sm" iconLeft={showForm ? ChevronUp : Plus} onClick={() => setShowForm(v => !v)}>
+        <Button variant="primary" size="sm" iconLeft={showForm ? "expand_less" : "add"} onClick={() => setShowForm(v => !v)}>
           {showForm ? "Cancel" : "Add Rate Card"}
         </Button>
       </div>
@@ -92,7 +91,7 @@ export const RateCardManager: React.FC = () => {
         <Card className="border-accent-amber/30 ring-1 ring-accent-amber/10">
           <div className="p-1 flex flex-col gap-4">
             <div className="text-xs font-bold text-accent-amber flex items-center gap-1.5">
-              <DollarSign size={13} /> New Rate Card
+              <Icon name="payments" size={13} /> New Rate Card
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Select label="Origin Hub" value={form.originCode ?? ""} onChange={e => set("originCode", e.target.value)} options={HUB_OPTIONS} />
@@ -163,8 +162,8 @@ export const RateCardManager: React.FC = () => {
                       title={card.isActive ? "Deactivate" : "Activate"}
                     >
                       {card.isActive
-                        ? <ToggleRight size={20} className="text-accent-amber" />
-                        : <ToggleLeft size={20} />}
+                        ? <Icon name="toggle_on" size={20} fill className="text-accent-amber" />
+                        : <Icon name="toggle_off" size={20} />}
                     </button>
                   </td>
                 </tr>
@@ -180,7 +179,7 @@ export const RateCardManager: React.FC = () => {
           </table>
         </div>
         <div className="px-4 py-2 border-t border-border-subtle text-[11px] text-muted flex items-center gap-1.5">
-          <ChevronDown size={12} /> Most-specific route wins. Wildcard cards are the global fallback.
+          <Icon name="south" size={12} /> Most-specific route wins. Wildcard cards are the global fallback.
         </div>
       </Card>
     </div>

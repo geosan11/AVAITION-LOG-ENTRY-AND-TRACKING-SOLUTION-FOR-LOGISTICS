@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Button, TextField, Select, Card } from '@/components/ui';
-import { Building2, MapPin, DollarSign, Users, CheckCircle, ArrowRight, ArrowLeft, Plane } from 'lucide-react';
+import { Button, TextField, Select, Card, Icon } from '@/components/ui';
 
 export interface OnboardingWizardProps {
   onComplete: (data: OnboardingData) => void;
@@ -14,10 +13,10 @@ export interface OnboardingData {
 }
 
 const STEPS = [
-  { id: 1, title: 'Company', icon: Building2 },
-  { id: 2, title: 'Hub', icon: MapPin },
-  { id: 3, title: 'Rates', icon: DollarSign },
-  { id: 4, title: 'Team', icon: Users },
+  { id: 1, title: 'Company', icon: 'apartment' },
+  { id: 2, title: 'Hub', icon: 'location_on' },
+  { id: 3, title: 'Rates', icon: 'payments' },
+  { id: 4, title: 'Team', icon: 'group' },
 ];
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
@@ -54,15 +53,14 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       {/* Progress Indicator */}
       <div className="flex justify-between items-center mb-8 relative">
         <div className="absolute left-0 top-1/2 w-full h-1 bg-border -z-10 -translate-y-1/2"></div>
-        <div className="absolute left-0 top-1/2 h-1 bg-amber-500 -z-10 -translate-y-1/2 transition-all duration-300" style={{ width: `${((step - 1) / 3) * 100}%` }}></div>
+        <div className="absolute left-0 top-1/2 h-1 bg-primary-container -z-10 -translate-y-1/2 transition-all duration-300" style={{ width: `${((step - 1) / 3) * 100}%` }}></div>
         {STEPS.map((s) => {
-          const Icon = s.icon;
           const isActive = step === s.id;
           const isCompleted = step > s.id;
           return (
             <div key={s.id} className="flex flex-col items-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${isActive || isCompleted ? 'bg-amber-500 border-amber-500 text-white' : 'bg-surface border-border text-foreground'}`}>
-                {isCompleted ? <CheckCircle size={20} /> : <Icon size={20} />}
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${isActive || isCompleted ? 'bg-primary-container border-primary-container text-on-primary-container' : 'bg-surface border-border text-foreground'}`}>
+                <Icon name={isCompleted ? 'check_circle' : s.icon} size={20} fill={isActive || isCompleted} />
               </div>
               <span className="text-xs mt-2 text-foreground font-medium">{s.title}</span>
             </div>
@@ -73,7 +71,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       {/* Step 1: Company Profile */}
       {step === 1 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Building2 className="text-amber-500"/> Company Profile</h2>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="apartment" className="text-accent-amber"/> Company Profile</h2>
           <div className="grid grid-cols-2 gap-4">
             <TextField label="Company Name" value={data.company?.name} onChange={(e) => updateCompany('name', e.target.value)} />
             <TextField label="CAC Number" value={data.company?.cacNumber} onChange={(e) => updateCompany('cacNumber', e.target.value)} />
@@ -89,7 +87,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       {/* Step 2: Hub Setup */}
       {step === 2 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><MapPin className="text-amber-500"/> First Airport Hub</h2>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="location_on" className="text-accent-amber"/> First Airport Hub</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <Select label="Station Type" value={data.hub?.stationType} onChange={(e) => updateHub('stationType', e.target.value)}>
@@ -109,11 +107,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       {/* Step 3: Route Rates */}
       {step === 3 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><DollarSign className="text-amber-500"/> Default Route Rates</h2>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="payments" className="text-accent-amber"/> Default Route Rates</h2>
           <div className="space-y-3">
             {data.rates?.map((rate, idx) => (
               <Card key={idx} className="p-4 flex gap-4 items-center">
-                <div className="flex-1 font-medium flex items-center gap-2"><Plane size={16}/> {rate.route}</div>
+                <div className="flex-1 font-medium flex items-center gap-2"><Icon name="flight_takeoff" size={16}/> {rate.route}</div>
                 <div className="w-1/3">
                   <TextField type="number" label="Rate Per Kg" value={rate.ratePerKg} onChange={(e) => updateRate(idx, 'ratePerKg', Number(e.target.value))} />
                 </div>
@@ -132,7 +130,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       {/* Step 4: Invite Staff */}
       {step === 4 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Users className="text-amber-500"/> Invite First Team Member</h2>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="group" className="text-accent-amber"/> Invite First Team Member</h2>
           <div className="grid grid-cols-2 gap-4">
             <TextField label="Staff Email" type="email" value={data.staff?.email || ''} onChange={(e) => updateStaff('email', e.target.value)} />
             <Select label="Role" value={data.staff?.role || 'desk_officer'} onChange={(e) => updateStaff('role', e.target.value)}>
@@ -150,11 +148,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
       {/* Footer Controls */}
       <div className="flex justify-between mt-8 pt-4 border-t border-border">
-        <Button variant="secondary" disabled={step === 1} onClick={prevStep}><ArrowLeft size={16} className="mr-2"/>Back</Button>
+        <Button variant="secondary" disabled={step === 1} onClick={prevStep} iconLeft="arrow_back">Back</Button>
         {step < 4 ? (
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={nextStep}>Next <ArrowRight size={16} className="ml-2"/></Button>
+          <Button variant="primary" onClick={nextStep} iconRight="arrow_forward">Next</Button>
         ) : (
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={handleComplete}>Complete Setup <CheckCircle size={16} className="ml-2"/></Button>
+          <Button variant="primary" onClick={handleComplete} iconRight="check_circle">Complete Setup</Button>
         )}
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { Spinner } from './Spinner';
-import { LucideIcon } from 'lucide-react';
+import { Icon } from './Icon';
 import { ICON } from '@/lib/ui';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost' | 'subtle';
@@ -11,8 +11,10 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: ButtonSize;
   loading?: boolean;
   loadingLabel?: string;
-  iconLeft?: LucideIcon;
-  iconRight?: LucideIcon;
+  /** Material Symbols glyph name. */
+  iconLeft?: string;
+  /** Material Symbols glyph name. */
+  iconRight?: string;
   fullWidth?: boolean;
 }
 
@@ -22,8 +24,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   size = 'md',
   loading = false,
   loadingLabel,
-  iconLeft: IconLeft,
-  iconRight: IconRight,
+  iconLeft,
+  iconRight,
   fullWidth = false,
   disabled,
   className = '',
@@ -43,15 +45,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
 
   const variantClasses: Record<ButtonVariant, string> = {
     primary:
-      'bg-accent-amber text-on-accent hover:bg-accent-amber-hover active:scale-[0.98] shadow-sm font-bold border-none transition-all',
+      'bg-primary-container text-on-primary-container hover:brightness-110 active:scale-[0.98] shadow-glow-strong font-bold border-none transition-all',
     secondary:
-      'bg-surface-1 text-foreground border border-border hover:bg-surface-2 hover:border-border-strong active:scale-[0.98] transition-all',
+      'bg-surface-container-high text-on-surface border border-border hover:bg-surface-container-highest hover:border-border-strong active:scale-[0.98] transition-all',
     destructive:
       'bg-error-bg text-error-fg border border-error-border hover:bg-error hover:text-white active:scale-[0.98] transition-all',
     ghost:
-      'bg-transparent text-muted hover:text-foreground hover:bg-surface-hover active:scale-[0.98] border-none transition-all',
+      'bg-transparent text-muted hover:text-on-surface hover:bg-surface-hover active:scale-[0.98] border-none transition-all',
     subtle:
-      'bg-surface-2 text-foreground border border-border-subtle hover:bg-surface-3 active:scale-[0.98] transition-all',
+      'bg-surface-container text-on-surface border border-border-subtle hover:bg-surface-container-high active:scale-[0.98] transition-all',
   };
 
   const isActuallyDisabled = disabled || loading;
@@ -81,9 +83,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
         </>
       ) : (
         <>
-          {IconLeft && <IconLeft size={iconSizes[size]} aria-hidden="true" />}
+          {iconLeft && <Icon name={iconLeft} size={iconSizes[size]} />}
           {children}
-          {IconRight && <IconRight size={iconSizes[size]} aria-hidden="true" />}
+          {iconRight && <Icon name={iconRight} size={iconSizes[size]} />}
         </>
       )}
     </button>

@@ -1,7 +1,7 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { AlertTriangle, RefreshCw, Terminal, Database } from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 
 interface Props {
   children: ReactNode;
@@ -61,7 +61,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <Card className="max-w-lg w-full border-error/40 bg-surface-card shadow-lg">
             <div className="flex flex-col items-center text-center p-4 gap-4">
               <div className="w-12 h-12 rounded-xl bg-error-bg border border-error-border text-error-fg flex items-center justify-center">
-                <AlertTriangle size={24} />
+                <Icon name="warning" size={24} />
               </div>
 
               <div>
@@ -78,13 +78,13 @@ export class ErrorBoundary extends Component<Props, State> {
               )}
 
               <div className="flex flex-wrap gap-2 justify-center w-full pt-2">
-                <Button variant="primary" size="sm" iconLeft={RefreshCw} onClick={this.handleReload}>
+                <Button variant="primary" size="sm" iconLeft="refresh" onClick={this.handleReload}>
                   Reload Terminal
                 </Button>
-                <Button variant="secondary" size="sm" iconLeft={Terminal} onClick={this.handleDismiss}>
+                <Button variant="secondary" size="sm" iconLeft="terminal" onClick={this.handleDismiss}>
                   Try Again
                 </Button>
-                <Button variant="ghost" size="sm" iconLeft={Database} onClick={this.handleResetCache}>
+                <Button variant="ghost" size="sm" iconLeft="database" onClick={this.handleResetCache}>
                   Clear Cache & Restart
                 </Button>
               </div>

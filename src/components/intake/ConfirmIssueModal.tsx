@@ -2,7 +2,7 @@ import React from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { AlertTriangle, Printer, Plane, User, Scale, CreditCard } from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { formatCurrency } from "@/lib/ui";
 import { PricingBreakdown } from "@/lib/pricing";
 
@@ -54,7 +54,7 @@ export const ConfirmIssueModal: React.FC<ConfirmIssueModalProps> = ({
           </Button>
           <Button
             variant="primary"
-            iconLeft={Printer}
+            iconLeft="print"
             loading={submitting}
             loadingLabel="Issuing & Syncing..."
             onClick={onConfirm}
@@ -68,7 +68,7 @@ export const ConfirmIssueModal: React.FC<ConfirmIssueModalProps> = ({
         {/* Route Header Banner */}
         <div className="p-3 rounded-lg bg-surface-sunken border border-border flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono font-bold text-sm text-foreground">
-            <Plane size={16} className="text-accent-amber" />
+            <Icon name="flight_takeoff" size={16} className="text-accent-amber" />
             <span>{formData.originCode}</span>
             <span className="text-muted">➔</span>
             <span>{formData.destinationCode}</span>
@@ -80,7 +80,7 @@ export const ConfirmIssueModal: React.FC<ConfirmIssueModalProps> = ({
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle space-y-1.5">
             <div className="text-muted flex items-center gap-1 font-semibold text-[11px]">
-              <User size={13} /> Shipper & Consignee
+              <Icon name="person" size={13} /> Shipper & Consignee
             </div>
             <div>
               <span className="text-muted block text-[10px]">Shipper:</span>
@@ -95,7 +95,7 @@ export const ConfirmIssueModal: React.FC<ConfirmIssueModalProps> = ({
 
           <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle space-y-1.5">
             <div className="text-muted flex items-center gap-1 font-semibold text-[11px]">
-              <Scale size={13} /> Weight & Package
+              <Icon name="scale" size={13} /> Weight & Package
             </div>
             <div className="flex justify-between">
               <span className="text-muted">Packages:</span>
@@ -116,7 +116,7 @@ export const ConfirmIssueModal: React.FC<ConfirmIssueModalProps> = ({
         <div className="p-3.5 rounded-lg bg-accent-amber/10 border border-accent-amber/30 space-y-2">
           <div className="flex items-center justify-between text-[11px] font-semibold text-foreground">
             <span className="flex items-center gap-1.5">
-              <CreditCard size={14} className="text-accent-amber" /> Total Payable Amount:
+              <Icon name="credit_card" size={14} className="text-accent-amber" /> Total Payable Amount:
             </span>
             <span className="text-lg font-black font-mono text-foreground">{formatCurrency(total)}</span>
           </div>
@@ -141,7 +141,7 @@ export const ConfirmIssueModal: React.FC<ConfirmIssueModalProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5 text-[11px] text-muted">
-          <AlertTriangle size={13} className="text-accent-amber shrink-0" />
+          <Icon name="warning" size={13} className="text-accent-amber shrink-0" />
           <span>Physical thermal receipt will generate automatically upon issuance.</span>
         </div>
       </div>

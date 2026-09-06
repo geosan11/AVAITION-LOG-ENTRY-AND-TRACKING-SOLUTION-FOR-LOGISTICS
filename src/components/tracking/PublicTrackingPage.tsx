@@ -3,18 +3,7 @@ import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/TextField";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import {
-  Search,
-  Plane,
-  Package,
-  CheckCircle2,
-  Clock,
-  ShieldCheck,
-  MapPin,
-  MessageSquare,
-  ArrowRight,
-  ExternalLink,
-} from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { supabase } from "@/lib/supabase";
 import { offlineDb } from "@/lib/offline/db";
 
@@ -22,7 +11,7 @@ export interface TrackingTimelineStep {
   key: string;
   label: string;
   description: string;
-  icon: any;
+  icon: string;
   done: boolean;
   current: boolean;
   timestamp?: string;
@@ -106,12 +95,12 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
 
   const getTimeline = (status: string): TrackingTimelineStep[] => {
     const statuses = [
-      { key: "received", label: "Intake & Booked", desc: "Cargo registered at origin airport cargo terminal", icon: Package },
-      { key: "security_cleared", label: "AVSEC Screened", desc: "Security and contraband scanning completed", icon: ShieldCheck },
-      { key: "manifested", label: "Manifest Batched", desc: `Loaded on flight manifest (${shipment?.flight_number || "Standby"})`, icon: Plane },
-      { key: "departed", label: "In Flight / Airborne", desc: `Departed origin hub heading to destination`, icon: ArrowRight },
-      { key: "arrived", label: "Landed & Available", desc: "Cargo arrived at destination airport holding desk", icon: MapPin },
-      { key: "delivered", label: "Consignee Handover", desc: "Released to verified consignee via security PIN", icon: CheckCircle2 },
+      { key: "received", label: "Intake & Booked", desc: "Cargo registered at origin airport cargo terminal", icon: "package_2" },
+      { key: "security_cleared", label: "AVSEC Screened", desc: "Security and contraband scanning completed", icon: "verified_user" },
+      { key: "manifested", label: "Manifest Batched", desc: `Loaded on flight manifest (${shipment?.flight_number || "Standby"})`, icon: "flight_takeoff" },
+      { key: "departed", label: "In Flight / Airborne", desc: `Departed origin hub heading to destination`, icon: "arrow_forward" },
+      { key: "arrived", label: "Landed & Available", desc: "Cargo arrived at destination airport holding desk", icon: "location_on" },
+      { key: "delivered", label: "Consignee Handover", desc: "Released to verified consignee via security PIN", icon: "check_circle" },
     ];
 
     const currentIndex = statuses.findIndex((s) => s.key === status);
@@ -134,7 +123,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
       {/* Top Hero Banner */}
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-amber/15 text-accent-amber text-xs font-semibold border border-accent-amber/30">
-          <Plane size={14} /> Live Aviation Cargo Tracking Portal
+          <Icon name="flight_takeoff" size={14} /> Live Aviation Cargo Tracking Portal
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
           Track Your Consignment
@@ -158,7 +147,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
               placeholder="e.g. LOS-2026-000492 or PENDING-..."
               value={searchAwb}
               onChange={(e) => setSearchAwb(e.target.value)}
-              iconLeft={Search}
+              iconLeft="search"
               mono
             />
           </div>
@@ -168,7 +157,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
             size="md"
             loading={loading}
             loadingLabel="Locating..."
-            iconLeft={Search}
+            iconLeft="search"
           >
             Track Waybill
           </Button>
@@ -253,7 +242,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
                 </div>
                 <div className="w-full flex items-center justify-center gap-2">
                   <div className="h-0.5 flex-1 bg-border" />
-                  <Plane size={18} className="text-accent-amber rotate-90" />
+                  <Icon name="flight" size={18} className="text-accent-amber rotate-90" />
                   <div className="h-0.5 flex-1 bg-border" />
                 </div>
                 <div className="text-[10px] text-muted">
@@ -281,7 +270,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
               <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle">
                 <span className="text-muted block text-[10px]">SECURITY STATUS</span>
                 <span className="font-semibold text-success text-sm flex items-center gap-1">
-                  <ShieldCheck size={14} /> Screened OK
+                  <Icon name="verified_user" size={14} /> Screened OK
                 </span>
               </div>
               <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle">
@@ -295,14 +284,13 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
           <Card
             header={
               <span className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Clock size={16} className="text-accent-amber" /> Real-Time Chain of Custody Timeline
+                <Icon name="schedule" size={16} className="text-accent-amber" /> Real-Time Chain of Custody Timeline
               </span>
             }
           >
             <div className="relative pl-6 sm:pl-8 space-y-8 before:absolute before:left-3 sm:before:left-4 before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
               {timeline.map((step) => {
-                const Icon = step.icon;
-                return (
+                                return (
                   <div key={step.key} className="relative flex items-start gap-4">
                     {/* Circle Node */}
                     <div
@@ -314,7 +302,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
                           : "bg-surface-2 border-border text-muted"
                       }`}
                     >
-                      <Icon size={14} />
+                      <Icon name={step.icon} size={14} />
                     </div>
 
                     <div className="flex-1 space-y-0.5">
@@ -348,7 +336,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
           <div className="p-5 rounded-2xl bg-surface-card border border-border flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="space-y-1 text-center sm:text-left">
               <h4 className="text-sm font-bold text-foreground flex items-center justify-center sm:justify-start gap-2">
-                <MessageSquare size={16} className="text-success" />
+                <Icon name="chat" size={16} className="text-success" />
                 Need Assistance With This Cargo?
               </h4>
               <p className="text-xs text-muted">
@@ -361,7 +349,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-success text-white text-xs font-bold hover:bg-success/90 transition-all shrink-0 cursor-pointer shadow-sm"
             >
-              <MessageSquare size={14} /> Chat on WhatsApp <ExternalLink size={12} />
+              <Icon name="chat" size={14} /> Chat on WhatsApp <Icon name="open_in_new" size={12} />
             </a>
           </div>
         </div>

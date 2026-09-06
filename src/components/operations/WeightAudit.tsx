@@ -4,14 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
-import {
-  Scale,
-  Search,
-  TrendingUp,
-  FileWarning,
-  DollarSign,
-  ShieldAlert,
-} from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { formatCurrency } from "@/lib/ui";
 
 export interface WeightAuditRecord {
@@ -133,7 +126,7 @@ export const WeightAudit: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-            <TrendingUp className="text-accent-amber" size={20} />
+            <Icon name="monitor_weight" className="text-accent-amber" size={20} />
             Ramp Weight Audit & Revenue Recovery Engine
           </h2>
           <p className="text-xs text-muted mt-0.5">
@@ -151,7 +144,7 @@ export const WeightAudit: React.FC = () => {
         <Card className="p-4 bg-surface-card border-border">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted">Recovered Revenue This Month</span>
-            <DollarSign size={16} className="text-success" />
+            <Icon name="paid" size={16} className="text-success" />
           </div>
           <div className="text-2xl font-black font-mono text-success mt-2">
             {formatCurrency(totalRecoveredRevenue)}
@@ -162,7 +155,7 @@ export const WeightAudit: React.FC = () => {
         <Card className="p-4 bg-surface-card border-error/30">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted">Pending Undeclared Discrepancies</span>
-            <FileWarning size={16} className="text-error" />
+            <Icon name="report" size={16} className="text-error" />
           </div>
           <div className="text-2xl font-black font-mono text-error mt-2">
             {formatCurrency(totalPendingShortfall)}
@@ -173,7 +166,7 @@ export const WeightAudit: React.FC = () => {
         <Card className="p-4 bg-surface-card border-border">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-muted">Tarmac Weight Leakage Rate</span>
-            <Scale size={16} className="text-accent-amber" />
+            <Icon name="scale" size={16} className="text-accent-amber" />
           </div>
           <div className="text-2xl font-black font-mono text-foreground mt-2">6.8% Variance</div>
           <p className="text-[11px] text-muted mt-1">Avg +3.2 kg under-reported at counter</p>
@@ -185,7 +178,7 @@ export const WeightAudit: React.FC = () => {
         className="border-accent-amber/40 ring-1 ring-accent-amber/15"
         header={
           <span className="text-sm font-bold text-foreground flex items-center gap-2">
-            <Scale size={16} className="text-accent-amber" />
+            <Icon name="scale" size={16} className="text-accent-amber" />
             Live Aircraft Hold Scale Re-Weigh Inspector
           </span>
         }
@@ -196,7 +189,7 @@ export const WeightAudit: React.FC = () => {
             value={activeAwb}
             onChange={(e) => setActiveAwb(e.target.value)}
             placeholder="LOS-2026-000492"
-            iconLeft={Search}
+            iconLeft="search"
             mono
           />
 
@@ -222,7 +215,7 @@ export const WeightAudit: React.FC = () => {
           <Button
             variant="primary"
             size="md"
-            iconLeft={Scale}
+            iconLeft="scale"
             onClick={handleCommitAudit}
             className="w-full"
           >
@@ -233,7 +226,7 @@ export const WeightAudit: React.FC = () => {
         {discrepancy > 0.5 && (
           <div className="mt-4 p-3 rounded-xl bg-error-bg border border-error-border text-xs flex items-center justify-between">
             <div className="flex items-center gap-2 text-error-fg font-medium">
-              <ShieldAlert size={16} />
+              <Icon name="gpp_maybe" size={16} />
               <span>
                 Weight Discrepancy Detected: <strong>+{discrepancy} Kg</strong> overweight. Uncollected Freight Shortfall:{" "}
                 <strong>{formatCurrency(calculatedShortfall)}</strong>.
@@ -342,7 +335,7 @@ export const WeightAudit: React.FC = () => {
               </Button>
               <Button
                 variant="primary"
-                iconLeft={DollarSign}
+                iconLeft="paid"
                 onClick={() => handleAuthorizeDebit(selectedAudit.id)}
               >
                 Authorize Debit ({formatCurrency(selectedAudit.chargeShortfall)})

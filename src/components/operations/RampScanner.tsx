@@ -4,10 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
-import {
-  Scan, QrCode, Search, CheckCircle2, AlertTriangle,
-  Package, Send, Zap, CameraOff, List,
-} from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { offlineDb } from "@/lib/offline/db";
 import { queueSyncItem } from "@/lib/offline/sync";
 import type { Shipment, ShipmentStatus } from "@/lib/types/database";
@@ -211,7 +208,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-            <Scan size={20} className="text-accent-amber" />
+            <Icon name="barcode_scanner" size={20} className="text-accent-amber" />
             Ramp Barcode Scanner
           </h2>
           <p className="text-xs text-muted mt-0.5">
@@ -238,7 +235,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                   ? "bg-success/10 border-success text-success animate-pulse"
                   : "bg-surface-2 border-border text-muted"
               }`}>
-                {mode === "scanning" ? <Scan size={36} /> : <QrCode size={36} />}
+                {mode === "scanning" ? <Icon name="barcode_scanner" size={36} /> : <Icon name="qr_code_2" size={36} />}
               </div>
 
               {mode === "scanning" ? (
@@ -247,7 +244,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                     <div className="font-bold text-foreground">Scanner is Active</div>
                     <div className="text-xs text-muted mt-1">Point your barcode scanner at any cargo AWB label.</div>
                   </div>
-                  <Button variant="destructive" iconLeft={CameraOff} onClick={() => setMode("idle")}>
+                  <Button variant="destructive" iconLeft="videocam_off" onClick={() => setMode("idle")}>
                     Stop Scanning
                   </Button>
                 </>
@@ -257,7 +254,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                     <div className="font-bold text-foreground">USB / Bluetooth Scanner</div>
                     <div className="text-xs text-muted mt-1">Connect your barcode scanner and click Start. Scan multiple AWBs, then commit all at once.</div>
                   </div>
-                  <Button variant="primary" iconLeft={Scan} onClick={() => setMode("scanning")}>
+                  <Button variant="primary" iconLeft="barcode_scanner" onClick={() => setMode("scanning")}>
                     Start Scanning
                   </Button>
                 </>
@@ -266,7 +263,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
           </Card>
 
           {/* Manual entry */}
-          <Card header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Search size={14} className="text-accent-amber" />Manual AWB Lookup</span>}>
+          <Card header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="search" size={14} className="text-accent-amber" />Manual AWB Lookup</span>}>
             <div className="flex gap-2 items-end">
               <div className="flex-1">
                 <TextField
@@ -278,7 +275,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                   mono
                 />
               </div>
-              <Button variant="secondary" size="md" iconLeft={Search} loading={looking} loadingLabel="..." onClick={handleManualAdd} className="shrink-0">
+              <Button variant="secondary" size="md" iconLeft="search" loading={looking} loadingLabel="..." onClick={handleManualAdd} className="shrink-0">
                 Find
               </Button>
             </div>
@@ -291,7 +288,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                 ? "bg-success-bg border-success-border text-success-fg"
                 : "bg-error-bg border-error-border text-error-fg"
             }`}>
-              {lastFeedback.ok ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+              {lastFeedback.ok ? <Icon name="check_circle" size={16} /> : <Icon name="warning" size={16} />}
               {lastFeedback.msg}
             </div>
           )}
@@ -299,7 +296,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
           {/* Commit result */}
           {commitResult && (
             <div className="p-3 rounded-xl bg-success-bg border border-success-border text-success-fg text-sm flex items-center gap-2">
-              <CheckCircle2 size={16} />
+              <Icon name="check_circle" size={16} />
               {commitResult}
             </div>
           )}
@@ -314,7 +311,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                 <Button
                   variant="primary"
                   fullWidth
-                  iconLeft={Send}
+                  iconLeft="send"
                   onClick={() => setShowConfirm(true)}
                 >
                   Commit {uncommitted.length} Status Update{uncommitted.length !== 1 ? "s" : ""}
@@ -338,7 +335,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
             header={
               <div className="flex items-center justify-between w-full">
                 <span className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <List size={15} className="text-accent-amber" />
+                  <Icon name="list_alt" size={15} className="text-accent-amber" />
                   Scanned Batch — {scannedItems.length} Item{scannedItems.length !== 1 ? "s" : ""}
                 </span>
                 {committed.length > 0 && (
@@ -350,7 +347,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
             {scannedItems.length === 0 ? (
               <div className="py-14 text-center flex flex-col items-center gap-3 text-muted">
                 <div className="w-14 h-14 rounded-2xl bg-surface-2 border border-border flex items-center justify-center">
-                  <Scan size={24} className="text-muted" />
+                  <Icon name="barcode_scanner" size={24} className="text-muted" />
                 </div>
                 <div>
                   <div className="font-semibold text-foreground text-sm">No scans yet</div>
@@ -368,7 +365,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                       : item.error ? "bg-error-bg border-error-border text-error-fg"
                       : "bg-accent-amber/10 border-accent-amber/30 text-accent-amber"
                     }`}>
-                      {item.committed ? <CheckCircle2 size={14} /> : item.error ? <AlertTriangle size={14} /> : <Package size={14} />}
+                      {item.committed ? <Icon name="check_circle" size={14} /> : item.error ? <Icon name="warning" size={14} /> : <Icon name="package_2" size={14} />}
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -406,7 +403,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
           </Card>
 
           {/* Quick status guide */}
-          <Card header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Zap size={14} className="text-accent-amber" />Status Flow Guide</span>}>
+          <Card header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="bolt" size={14} className="text-accent-amber" />Status Flow Guide</span>}>
             <div className="flex flex-wrap gap-2 text-[11px]">
               {(["received", "security_cleared", "manifested", "departed", "arrived", "delivered"] as ShipmentStatus[]).map((status, idx, arr) => (
                 <React.Fragment key={status}>
@@ -431,7 +428,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
         footer={
           <>
             <Button variant="ghost" onClick={() => setShowConfirm(false)}>Cancel</Button>
-            <Button variant="primary" iconLeft={Send} loading={committing} loadingLabel="Committing..." onClick={handleCommitAll}>
+            <Button variant="primary" iconLeft="send" loading={committing} loadingLabel="Committing..." onClick={handleCommitAll}>
               Commit {uncommitted.length} Update{uncommitted.length !== 1 ? "s" : ""}
             </Button>
           </>

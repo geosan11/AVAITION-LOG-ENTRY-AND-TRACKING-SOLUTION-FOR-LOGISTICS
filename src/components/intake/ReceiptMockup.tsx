@@ -1,7 +1,6 @@
 import React from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/Button";
-import { Printer, Check, Copy } from "lucide-react";
 import { formatCurrency } from "@/lib/ui";
 import { Shipment } from "@/lib/types/database";
 
@@ -186,10 +185,10 @@ export const ReceiptMockup: React.FC<ReceiptMockupProps> = ({
 
       {/* Action Buttons (Hidden when printing) */}
       <div className="flex gap-2.5 w-full justify-center print:hidden">
-        <Button variant="primary" iconLeft={Printer} onClick={handlePrint}>
+        <Button variant="primary" iconLeft="print" onClick={handlePrint}>
           Print Receipt (80mm)
         </Button>
-        <Button variant="secondary" iconLeft={copied ? Check : Copy} onClick={handleCopyAwb}>
+        <Button variant="secondary" iconLeft={copied ? "check" : "content_copy"} onClick={handleCopyAwb}>
           {copied ? "Copied!" : "Copy AWB"}
         </Button>
         {onClose && (

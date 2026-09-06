@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Icon } from './Icon';
 import { ICON } from '@/lib/ui';
 
 export interface SpinnerProps {
@@ -23,10 +23,10 @@ export const Spinner: React.FC<SpinnerProps> = ({
   }[tone];
 
   return (
-    <Loader2
+    <Icon
+      name="progress_activity"
       size={pixelSize}
       className={`animate-spin ${toneClass} ${className}`}
-      aria-hidden="true"
     />
   );
 };

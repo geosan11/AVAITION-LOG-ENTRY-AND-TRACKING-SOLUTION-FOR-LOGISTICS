@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Clock, Printer, ArrowRight, RefreshCw } from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { formatCurrency } from "@/lib/ui";
 import { Shipment } from "@/lib/types/database";
 
@@ -24,7 +24,7 @@ export const RecentAWBsSidebar: React.FC<RecentAWBsSidebarProps> = ({
       header={
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
-            <Clock size={15} className="text-accent-amber" />
+            <Icon name="schedule" size={15} className="text-accent-amber" />
             <span className="text-xs font-bold text-foreground">Recent Desk Waybills</span>
           </div>
           {onRefresh && (
@@ -35,7 +35,7 @@ export const RecentAWBsSidebar: React.FC<RecentAWBsSidebarProps> = ({
               className="text-muted hover:text-foreground transition-colors p-1 rounded cursor-pointer"
               title="Refresh local waybills"
             >
-              <RefreshCw size={13} className={isLoading ? "animate-spin text-accent-amber" : ""} />
+              <Icon name="refresh" size={13} className={isLoading ? "animate-spin text-accent-amber" : ""} />
             </button>
           )}
         </div>
@@ -44,7 +44,7 @@ export const RecentAWBsSidebar: React.FC<RecentAWBsSidebarProps> = ({
       {shipments.length === 0 ? (
         <div className="py-8 text-center text-xs text-muted flex flex-col items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-surface-2 flex items-center justify-center text-muted">
-            <Clock size={16} />
+            <Icon name="schedule" size={16} />
           </div>
           <span>No waybills issued on this desk today yet.</span>
         </div>
@@ -78,7 +78,7 @@ export const RecentAWBsSidebar: React.FC<RecentAWBsSidebarProps> = ({
                   </div>
                   <div className="font-mono flex items-center gap-1">
                     <span>{s.origin_hub_id}</span>
-                    <ArrowRight size={10} />
+                    <Icon name="arrow_forward" size={10} />
                     <span className="text-foreground font-semibold">{s.destination_hub_id}</span>
                     <span>·</span>
                     <span>{s.weight_kg}kg</span>
@@ -93,7 +93,7 @@ export const RecentAWBsSidebar: React.FC<RecentAWBsSidebarProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      iconLeft={Printer}
+                      iconLeft="print"
                       className="h-6 text-[10px] px-2"
                       onClick={() => onSelectShipment(s)}
                     >

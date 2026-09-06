@@ -1,7 +1,7 @@
 import React from "react";
 import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/TextField";
-import { Scale, Hash, Package, Shield } from "lucide-react";
+import { Icon } from "@/components/ui/Icon";
 import { IntakeValidationErrors } from "@/lib/validation/intake";
 
 export interface WeightDimsSectionProps {
@@ -45,7 +45,7 @@ export const WeightDimsSection: React.FC<WeightDimsSectionProps> = ({
     <Card
       header={
         <span className="text-sm font-bold text-foreground flex items-center gap-2">
-          <Scale size={15} className="text-accent-amber" />
+          <Icon name="scale" size={15} className="text-accent-amber" />
           3. Cargo Metrics, Volumetric Dimensions & Valuation
         </span>
       }
@@ -60,7 +60,7 @@ export const WeightDimsSection: React.FC<WeightDimsSectionProps> = ({
             value={weightKg || ""}
             onChange={(e) => setWeightKg(parseFloat(e.target.value) || 0)}
             onBlur={() => onBlurField("weightKg")}
-            iconLeft={Scale}
+            iconLeft="scale"
             mono
             error={errors.weightKg}
             hint="Scale reading"
@@ -72,7 +72,7 @@ export const WeightDimsSection: React.FC<WeightDimsSectionProps> = ({
             value={pieces || ""}
             onChange={(e) => setPieces(parseInt(e.target.value) || 1)}
             onBlur={() => onBlurField("pieces")}
-            iconLeft={Hash}
+            iconLeft="tag"
             mono
             error={errors.pieces}
           />
@@ -83,7 +83,7 @@ export const WeightDimsSection: React.FC<WeightDimsSectionProps> = ({
             onChange={(e) => setContentType(e.target.value)}
             onBlur={() => onBlurField("contentType")}
             placeholder="e.g. Avionics Parts"
-            iconLeft={Package}
+            iconLeft="inventory_2"
             error={errors.contentType}
           />
 
@@ -93,7 +93,7 @@ export const WeightDimsSection: React.FC<WeightDimsSectionProps> = ({
             value={declaredValue || ""}
             onChange={(e) => setDeclaredValue(parseFloat(e.target.value) || 0)}
             placeholder="Optional"
-            iconLeft={Shield}
+            iconLeft="shield"
             mono
             hint="0.5% premium if > ₦50k"
           />

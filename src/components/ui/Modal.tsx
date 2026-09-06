@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { Icon } from './Icon';
 import { ICON } from '@/lib/ui';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -98,7 +98,7 @@ export const Modal: React.FC<ModalProps> = ({
               className="p-1.5 rounded-md text-muted hover:text-foreground hover:bg-surface-hover transition-colors cursor-pointer"
               aria-label="Close modal"
             >
-              <X size={ICON.md} aria-hidden="true" />
+              <Icon name="close" size={ICON.md} />
             </button>
           </div>
         )}
