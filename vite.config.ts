@@ -12,6 +12,12 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      workbox: {
+        // Precache the self-hosted Material Symbols font so icons render offline
+        // at the cargo desk. The full outlined set is ~3.8 MB.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+      },
       manifest: {
         name: 'AeroLogistics Cloud Suite',
         short_name: 'AeroLogistics',
