@@ -3,6 +3,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
+import { Disclosure } from "@/components/ui/Disclosure";
 import { formatCurrency } from "@/lib/ui";
 import { PricingBreakdown } from "@/lib/pricing";
 
@@ -45,27 +46,27 @@ export const ConfirmIssueModal: React.FC<ConfirmIssueModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Verify Consignment Before Issuance"
-      description="Review all cargo specifications and billing totals. Once issued, this entry commits to the flight manifest."
+      title="Check before creating"
+      description="Once you create it, the shipment is added to the flight list."
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={submitting}>
-            Cancel & Edit
+            Go back
           </Button>
           <Button
             variant="primary"
             iconLeft="print"
             loading={submitting}
-            loadingLabel="Issuing & Syncing..."
+            loadingLabel="Creating…"
             onClick={onConfirm}
           >
-            Confirm & Issue Waybill
+            Create shipment
           </Button>
         </>
       }
     >
       <div className="flex flex-col gap-4 text-xs">
-        {/* Route Header Banner */}
+        {/* Route */}
         <div className="p-3 rounded-lg bg-surface-sunken border border-border flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono font-bold text-sm text-foreground">
             <Icon name="flight_takeoff" size={16} className="text-accent-amber" />
@@ -73,76 +74,78 @@ export const ConfirmIssueModal: React.FC<ConfirmIssueModalProps> = ({
             <span className="text-muted">➔</span>
             <span>{formData.destinationCode}</span>
           </div>
-          <Badge tone="amber" dot>Flight {formData.flightNumber || "Standby"}</Badge>
+          <Badge tone="amber" dot>Flight {formData.flightNumber || "not set"}</Badge>
         </div>
 
-        {/* 2-Column Summary Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle space-y-1.5">
-            <div className="text-muted flex items-center gap-1 font-semibold text-[11px]">
-              <Icon name="person" size={13} /> Shipper & Consignee
-            </div>
-            <div>
-              <span className="text-muted block text-[10px]">Shipper:</span>
-              <span className="font-semibold text-foreground text-xs">{formData.senderName}</span>
-            </div>
-            <div>
-              <span className="text-muted block text-[10px]">Consignee:</span>
-              <span className="font-semibold text-foreground text-xs">{formData.consigneeName}</span>
-              <span className="text-muted block font-mono text-[10px]">{formData.consigneePhone}</span>
-            </div>
-          </div>
-
-          <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle space-y-1.5">
-            <div className="text-muted flex items-center gap-1 font-semibold text-[11px]">
-              <Icon name="scale" size={13} /> Weight & Package
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted">Packages:</span>
-              <span className="font-bold text-foreground font-mono">{formData.pieces} pcs</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted">Gross Weight:</span>
-              <span className="font-bold text-foreground font-mono">{formData.weightKg} kg</span>
-            </div>
-            <div className="flex justify-between border-t border-border-subtle pt-1">
-              <span className="text-muted">Billable:</span>
-              <span className="font-bold text-accent-amber font-mono">{pricing.chargeableWeightKg} kg</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing & Settlement */}
+        {/* Amount + payment */}
         <div className="p-3.5 rounded-lg bg-accent-amber/10 border border-accent-amber/30 space-y-2">
           <div className="flex items-center justify-between text-[11px] font-semibold text-foreground">
             <span className="flex items-center gap-1.5">
-              <Icon name="credit_card" size={14} className="text-accent-amber" /> Total Payable Amount:
+              <Icon name="credit_card" size={14} className="text-accent-amber" /> Total to pay
             </span>
             <span className="text-lg font-black font-mono text-foreground">{formatCurrency(total)}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-2 border-t border-accent-amber/20 text-[11px]">
             <div>
-              <span className="text-muted block text-[10px]">Payment Method:</span>
+              <span className="text-muted block text-[10px]">Paying by</span>
               <span className="font-bold text-foreground">{formData.paymentMode}</span>
             </div>
             <div className="text-right">
-              <span className="text-muted block text-[10px]">Tendered / Paid:</span>
+              <span className="text-muted block text-[10px]">Amount received</span>
               <span className="font-mono font-bold text-foreground">{formatCurrency(tendered)}</span>
             </div>
           </div>
 
           {balance > 0 && (
             <div className="flex items-center justify-between text-error font-semibold pt-1 border-t border-accent-amber/20 text-[11px]">
-              <span>Unsettled Debt Balance:</span>
+              <span>Still owed</span>
               <span className="font-mono">{formatCurrency(balance)}</span>
             </div>
           )}
         </div>
 
+        {/* Full details (collapsed) */}
+        <Disclosure label="Full details">
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle space-y-1.5">
+              <div className="text-muted flex items-center gap-1 font-semibold text-[11px]">
+                <Icon name="person" size={13} /> Sender &amp; recipient
+              </div>
+              <div>
+                <span className="text-muted block text-[10px]">Sender</span>
+                <span className="font-semibold text-foreground text-xs">{formData.senderName}</span>
+              </div>
+              <div>
+                <span className="text-muted block text-[10px]">Recipient</span>
+                <span className="font-semibold text-foreground text-xs">{formData.consigneeName}</span>
+                <span className="text-muted block font-mono text-[10px]">{formData.consigneePhone}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle space-y-1.5">
+              <div className="text-muted flex items-center gap-1 font-semibold text-[11px]">
+                <Icon name="scale" size={13} /> Weight &amp; items
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Items</span>
+                <span className="font-bold text-foreground font-mono">{formData.pieces}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">Weight</span>
+                <span className="font-bold text-foreground font-mono">{formData.weightKg} kg</span>
+              </div>
+              <div className="flex justify-between border-t border-border-subtle pt-1">
+                <span className="text-muted">Billed weight</span>
+                <span className="font-bold text-accent-amber font-mono">{pricing.chargeableWeightKg} kg</span>
+              </div>
+            </div>
+          </div>
+        </Disclosure>
+
         <div className="flex items-center gap-1.5 text-[11px] text-muted">
-          <Icon name="warning" size={13} className="text-accent-amber shrink-0" />
-          <span>Physical thermal receipt will generate automatically upon issuance.</span>
+          <Icon name="print" size={13} className="text-accent-amber shrink-0" />
+          <span>A receipt prints automatically.</span>
         </div>
       </div>
     </Modal>

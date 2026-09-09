@@ -130,14 +130,14 @@ export function useManifestBuilder(tenantId: string, stationCode: string): UseMa
   }, []);
 
   const addAwbToManifest = useCallback(async (awbNumber: string): Promise<{ success: boolean; error?: string }> => {
-    if (!manifest) return { success: false, error: 'No manifest selected' };
-    if (manifest.status !== 'open') return { success: false, error: 'Manifest is locked. Cannot add shipments.' };
+    if (!manifest) return { success: false, error: 'No flight selected' };
+    if (manifest.status !== 'open') return { success: false, error: 'This flight is locked' };
 
     const clean = awbNumber.trim().toUpperCase();
 
     // Already in manifest?
     if (manifest.items.some((i) => i.shipment.awb_number === clean)) {
-      return { success: false, error: `${clean} is already on this manifest` };
+      return { success: false, error: `${clean} is already on this flight` };
     }
 
     // Look up in local IndexedDB first
@@ -150,11 +150,11 @@ export function useManifestBuilder(tenantId: string, stationCode: string): UseMa
 
     if (!shipment) {
       // Simulate DB lookup — in production this calls supabase.rpc('add_shipment_to_manifest')
-      return { success: false, error: `AWB "${clean}" not found in station records. Check the number and try again.` };
+      return { success: false, error: `Tracking number ${clean} not found. Check it and try again.` };
     }
 
     if (!['received', 'security_cleared', 'manifested'].includes(shipment.status)) {
-      return { success: false, error: `${clean} has status "${shipment.status}" and cannot be manifested` };
+      return { success: false, error: `${clean} is at "${shipment.status.replace('_', ' ')}" and can't be added yet` };
     }
 
     // Optimistic update

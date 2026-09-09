@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, TextField, Select, Card, Icon } from '@/components/ui';
+import { Button, TextField, Select, Card, Icon, InfoHint } from '@/components/ui';
 
 export interface OnboardingWizardProps {
   onComplete: (data: OnboardingData) => void;
@@ -71,12 +71,12 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       {/* Step 1: Company Profile */}
       {step === 1 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="apartment" className="text-accent-amber"/> Company Profile</h2>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="apartment" className="text-accent-amber"/> Your company</h2>
           <div className="grid grid-cols-2 gap-4">
-            <TextField label="Company Name" value={data.company?.name} onChange={(e) => updateCompany('name', e.target.value)} />
-            <TextField label="CAC Number" value={data.company?.cacNumber} onChange={(e) => updateCompany('cacNumber', e.target.value)} />
-            <TextField label="Email Address" type="email" value={data.company?.email} onChange={(e) => updateCompany('email', e.target.value)} />
-            <TextField label="Phone Number" value={data.company?.phone} onChange={(e) => updateCompany('phone', e.target.value)} />
+            <TextField label="Company name" value={data.company?.name} onChange={(e) => updateCompany('name', e.target.value)} />
+            <TextField label="CAC number (business registration)" value={data.company?.cacNumber} onChange={(e) => updateCompany('cacNumber', e.target.value)} />
+            <TextField label="Email address" type="email" value={data.company?.email} onChange={(e) => updateCompany('email', e.target.value)} />
+            <TextField label="Phone number" value={data.company?.phone} onChange={(e) => updateCompany('phone', e.target.value)} />
             <div className="col-span-2">
               <TextField label="Address" value={data.company?.address} onChange={(e) => updateCompany('address', e.target.value)} />
             </div>
@@ -87,17 +87,21 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       {/* Step 2: Hub Setup */}
       {step === 2 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="location_on" className="text-accent-amber"/> First Airport Hub</h2>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="location_on" className="text-accent-amber"/> Your first location</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <Select label="Station Type" value={data.hub?.stationType} onChange={(e) => updateHub('stationType', e.target.value)}>
-                <option value="airport_cargo_desk">Airport Cargo Desk</option>
-                <option value="city_dropoff_hub">City Dropoff Hub</option>
-                <option value="ramp_transit_office">Ramp Transit Office</option>
+              <Select label="Location type" value={data.hub?.stationType} onChange={(e) => updateHub('stationType', e.target.value)}>
+                <option value="airport_cargo_desk">Airport cargo desk</option>
+                <option value="city_dropoff_hub">City drop-off point</option>
+                <option value="ramp_transit_office">Ramp office</option>
               </Select>
             </div>
-            <TextField label="Hub Code (IATA)" value={data.hub?.code} onChange={(e) => updateHub('code', e.target.value)} />
-            <TextField label="AWB Prefix" value={data.hub?.awbPrefix} onChange={(e) => updateHub('awbPrefix', e.target.value)} />
+            <TextField label="Airport code (IATA)" value={data.hub?.code} onChange={(e) => updateHub('code', e.target.value)} />
+            <TextField
+              label={<span className="flex items-center gap-1">Tracking number prefix <InfoHint term="awbPrefix" /></span>}
+              value={data.hub?.awbPrefix}
+              onChange={(e) => updateHub('awbPrefix', e.target.value)}
+            />
             <TextField label="City" value={data.hub?.city} onChange={(e) => updateHub('city', e.target.value)} />
             <TextField label="State" value={data.hub?.state} onChange={(e) => updateHub('state', e.target.value)} />
           </div>
@@ -107,22 +111,22 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       {/* Step 3: Route Rates */}
       {step === 3 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="payments" className="text-accent-amber"/> Default Route Rates</h2>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="payments" className="text-accent-amber"/> Starting prices</h2>
           <div className="space-y-3">
             {data.rates?.map((rate, idx) => (
               <Card key={idx} className="p-4 flex gap-4 items-center">
                 <div className="flex-1 font-medium flex items-center gap-2"><Icon name="flight_takeoff" size={16}/> {rate.route}</div>
                 <div className="w-1/3">
-                  <TextField type="number" label="Rate Per Kg" value={rate.ratePerKg} onChange={(e) => updateRate(idx, 'ratePerKg', Number(e.target.value))} />
+                  <TextField type="number" label="Price per kg" value={rate.ratePerKg} onChange={(e) => updateRate(idx, 'ratePerKg', Number(e.target.value))} />
                 </div>
                 <div className="w-1/3">
-                  <TextField type="number" label="Min Charge" value={rate.minimumCharge} onChange={(e) => updateRate(idx, 'minimumCharge', Number(e.target.value))} />
+                  <TextField type="number" label="Minimum price" value={rate.minimumCharge} onChange={(e) => updateRate(idx, 'minimumCharge', Number(e.target.value))} />
                 </div>
               </Card>
             ))}
           </div>
           <div className="flex justify-end mt-2">
-            <Button variant="ghost" onClick={nextStep}>Use defaults</Button>
+            <Button variant="ghost" onClick={nextStep}>Use these</Button>
           </div>
         </div>
       )}
@@ -130,9 +134,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       {/* Step 4: Invite Staff */}
       {step === 4 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="group" className="text-accent-amber"/> Invite First Team Member</h2>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Icon name="group" className="text-accent-amber"/> Invite a teammate</h2>
           <div className="grid grid-cols-2 gap-4">
-            <TextField label="Staff Email" type="email" value={data.staff?.email || ''} onChange={(e) => updateStaff('email', e.target.value)} />
+            <TextField label="Their email" type="email" value={data.staff?.email || ''} onChange={(e) => updateStaff('email', e.target.value)} />
             <Select label="Role" value={data.staff?.role || 'desk_officer'} onChange={(e) => updateStaff('role', e.target.value)}>
               <option value="tenant_admin">Admin</option>
               <option value="station_manager">Station Manager</option>

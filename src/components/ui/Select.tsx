@@ -9,7 +9,7 @@ export interface SelectOption {
 }
 
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  label?: string;
+  label?: React.ReactNode;
   hint?: string;
   error?: string;
   options?: SelectOption[];

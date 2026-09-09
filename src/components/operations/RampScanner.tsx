@@ -81,7 +81,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
 
     // Duplicate check
     if (scannedItems.some((i) => i.awb === awb)) {
-      setLastFeedback({ ok: false, msg: `${awb} already in batch` });
+      setLastFeedback({ ok: false, msg: `${awb} is already in the list` });
       setTimeout(() => setLastFeedback(null), 2000);
       return;
     }
@@ -91,7 +91,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
     const shipment = await lookupShipment(awb);
 
     if (!shipment) {
-      setLastFeedback({ ok: false, msg: `AWB "${awb}" not found in station records` });
+      setLastFeedback({ ok: false, msg: `Tracking number ${awb} not found` });
       setLooking(false);
       setTimeout(() => setLastFeedback(null), 3000);
       return;
@@ -99,7 +99,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
 
     const nextStatuses = ALLOWED_TRANSITIONS[shipment.status];
     if (!nextStatuses.length) {
-      setLastFeedback({ ok: false, msg: `${awb} is at final status "${shipment.status}"` });
+      setLastFeedback({ ok: false, msg: `${awb} is already at the last step` });
       setLooking(false);
       setTimeout(() => setLastFeedback(null), 3000);
       return;
@@ -114,7 +114,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
       committed: false,
     };
     setScannedItems((prev) => [item, ...prev]);
-    setLastFeedback({ ok: true, msg: `\u2713 ${awb} \u2014 Ready to mark ${targetStatus.replace("_", " ").toUpperCase()}` });
+    setLastFeedback({ ok: true, msg: `✓ ${awb} — will move to ${targetStatus.replace("_", " ")}` });
     setLooking(false);
     setTimeout(() => setLastFeedback(null), 2500);
   }, [scannedItems, lookupShipment]);
@@ -183,7 +183,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
         successCount++;
       } catch (err) {
         setScannedItems((prev) =>
-          prev.map((i) => (i.id === item.id ? { ...i, error: "Sync failed" } : i))
+          prev.map((i) => (i.id === item.id ? { ...i, error: "Could not save" } : i))
         );
         failCount++;
       }
@@ -191,8 +191,8 @@ export const RampScanner: React.FC<RampScannerProps> = ({
 
     setCommitResult(
       failCount === 0
-        ? `\u2713 ${successCount} shipment${successCount !== 1 ? "s" : ""} updated successfully and queued for sync.`
-        : `${successCount} updated, ${failCount} failed. Failed items will retry on next sync.`
+        ? `✓ ${successCount} shipment${successCount !== 1 ? "s" : ""} updated. Syncs when online.`
+        : `${successCount} updated, ${failCount} failed. Failed ones will retry on the next sync.`
     );
     setCommitting(false);
     setShowConfirm(false);
@@ -209,15 +209,15 @@ export const RampScanner: React.FC<RampScannerProps> = ({
         <div>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
             <Icon name="barcode_scanner" size={20} className="text-accent-amber" />
-            Ramp Barcode Scanner
+            Scan cargo
           </h2>
           <p className="text-xs text-muted mt-0.5">
-            Scan cargo AWB barcodes on the tarmac to batch-update shipment statuses. Works offline.
+            Scan shipment barcodes to move them to the next step. Works offline.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Badge tone={mode === "scanning" ? "success" : "neutral"} dot>
-            {mode === "scanning" ? "Scanner Active" : "Scanner Off"}
+            {mode === "scanning" ? "Scanning" : "Not scanning"}
           </Badge>
         </div>
       </div>
@@ -241,21 +241,21 @@ export const RampScanner: React.FC<RampScannerProps> = ({
               {mode === "scanning" ? (
                 <>
                   <div>
-                    <div className="font-bold text-foreground">Scanner is Active</div>
-                    <div className="text-xs text-muted mt-1">Point your barcode scanner at any cargo AWB label.</div>
+                    <div className="font-bold text-foreground">Scanning</div>
+                    <div className="text-xs text-muted mt-1">Point the scanner at a shipment barcode.</div>
                   </div>
                   <Button variant="destructive" iconLeft="videocam_off" onClick={() => setMode("idle")}>
-                    Stop Scanning
+                    Stop
                   </Button>
                 </>
               ) : (
                 <>
                   <div>
-                    <div className="font-bold text-foreground">USB / Bluetooth Scanner</div>
-                    <div className="text-xs text-muted mt-1">Connect your barcode scanner and click Start. Scan multiple AWBs, then commit all at once.</div>
+                    <div className="font-bold text-foreground">Barcode scanner</div>
+                    <div className="text-xs text-muted mt-1">Connect your scanner and press Start. Scan several shipments, then save them all at once.</div>
                   </div>
                   <Button variant="primary" iconLeft="barcode_scanner" onClick={() => setMode("scanning")}>
-                    Start Scanning
+                    Start
                   </Button>
                 </>
               )}
@@ -263,11 +263,11 @@ export const RampScanner: React.FC<RampScannerProps> = ({
           </Card>
 
           {/* Manual entry */}
-          <Card header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="search" size={14} className="text-accent-amber" />Manual AWB Lookup</span>}>
+          <Card header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="search" size={14} className="text-accent-amber" />Type a tracking number</span>}>
             <div className="flex gap-2 items-end">
               <div className="flex-1">
                 <TextField
-                  label="Enter AWB Number"
+                  label="Tracking number"
                   placeholder="e.g. LOS-2026-000492"
                   value={manualInput}
                   onChange={(e) => setManualInput(e.target.value)}
@@ -275,7 +275,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                   mono
                 />
               </div>
-              <Button variant="secondary" size="md" iconLeft="search" loading={looking} loadingLabel="..." onClick={handleManualAdd} className="shrink-0">
+              <Button variant="secondary" size="md" iconLeft="search" loading={looking} loadingLabel="…" onClick={handleManualAdd} className="shrink-0">
                 Find
               </Button>
             </div>
@@ -306,7 +306,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
             <Card className="border-accent-amber/30 ring-1 ring-accent-amber/10">
               <div className="flex flex-col gap-3">
                 <div className="text-xs text-muted">
-                  <strong className="text-foreground">{uncommitted.length}</strong> shipment{uncommitted.length !== 1 ? "s" : ""} ready to commit. Once committed, statuses will be updated and synced to the server.
+                  <strong className="text-foreground">{uncommitted.length}</strong> ready. Saving updates their status and syncs when online.
                 </div>
                 <Button
                   variant="primary"
@@ -314,7 +314,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                   iconLeft="send"
                   onClick={() => setShowConfirm(true)}
                 >
-                  Commit {uncommitted.length} Status Update{uncommitted.length !== 1 ? "s" : ""}
+                  Save {uncommitted.length} update{uncommitted.length !== 1 ? "s" : ""}
                 </Button>
                 <Button
                   variant="ghost"
@@ -322,7 +322,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                   size="sm"
                   onClick={() => setScannedItems([])}
                 >
-                  Clear All
+                  Clear list
                 </Button>
               </div>
             </Card>
@@ -336,10 +336,10 @@ export const RampScanner: React.FC<RampScannerProps> = ({
               <div className="flex items-center justify-between w-full">
                 <span className="text-sm font-bold text-foreground flex items-center gap-2">
                   <Icon name="list_alt" size={15} className="text-accent-amber" />
-                  Scanned Batch — {scannedItems.length} Item{scannedItems.length !== 1 ? "s" : ""}
+                  Scanned — {scannedItems.length}
                 </span>
                 {committed.length > 0 && (
-                  <Badge tone="success" size="sm">{committed.length} committed</Badge>
+                  <Badge tone="success" size="sm">{committed.length} saved</Badge>
                 )}
               </div>
             }
@@ -350,9 +350,9 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                   <Icon name="barcode_scanner" size={24} className="text-muted" />
                 </div>
                 <div>
-                  <div className="font-semibold text-foreground text-sm">No scans yet</div>
+                  <div className="font-semibold text-foreground text-sm">Nothing scanned yet</div>
                   <div className="text-xs text-muted mt-1">
-                    Activate the scanner and scan AWB barcodes on cargo labels to build a batch.
+                    Turn on the scanner and scan shipment barcodes.
                   </div>
                 </div>
               </div>
@@ -374,7 +374,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                         <Badge tone={STATUS_TONE[item.shipment.status]} size="sm">{item.shipment.status.replace("_", " ")}</Badge>
                         {!item.committed && !item.error && (
                           <>
-                            <span className="text-muted text-xs">\u2192</span>
+                            <span className="text-muted text-xs">→</span>
                             <Badge tone="amber" size="sm">{item.targetStatus.replace("_", " ")}</Badge>
                           </>
                         )}
@@ -382,7 +382,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                         {item.error && <Badge tone="error" size="sm">{item.error}</Badge>}
                       </div>
                       <div className="text-[11px] text-muted mt-0.5 truncate">
-                        {item.shipment.consignee_name} \u00b7 {item.shipment.pieces} pcs \u00b7 {item.shipment.weight_kg} kg
+                        {item.shipment.consignee_name} · {item.shipment.pieces} items · {item.shipment.weight_kg} kg
                       </div>
                     </div>
 
@@ -391,9 +391,9 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                         type="button"
                         onClick={() => removeItem(item.id)}
                         className="opacity-0 group-hover:opacity-100 text-muted hover:text-error transition-all p-1 rounded text-xs shrink-0 cursor-pointer"
-                        title="Remove from batch"
+                        title="Remove"
                       >
-                        \u2715
+                        ✕
                       </button>
                     )}
                   </div>
@@ -403,17 +403,17 @@ export const RampScanner: React.FC<RampScannerProps> = ({
           </Card>
 
           {/* Quick status guide */}
-          <Card header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="bolt" size={14} className="text-accent-amber" />Status Flow Guide</span>}>
+          <Card header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="bolt" size={14} className="text-accent-amber" />What the statuses mean</span>}>
             <div className="flex flex-wrap gap-2 text-[11px]">
               {(["received", "security_cleared", "manifested", "departed", "arrived", "delivered"] as ShipmentStatus[]).map((status, idx, arr) => (
                 <React.Fragment key={status}>
                   <Badge tone={STATUS_TONE[status]} size="sm">{status.replace("_", " ")}</Badge>
-                  {idx < arr.length - 1 && <span className="text-muted self-center">\u2192</span>}
+                  {idx < arr.length - 1 && <span className="text-muted self-center">→</span>}
                 </React.Fragment>
               ))}
             </div>
             <p className="text-[11px] text-muted mt-3">
-              The scanner auto-detects the correct next status for each AWB. Scan security-cleared cargo at the ramp to batch-mark it as MANIFESTED or DEPARTED.
+              The scanner picks the right next step for each shipment automatically.
             </p>
           </Card>
         </div>
@@ -423,13 +423,13 @@ export const RampScanner: React.FC<RampScannerProps> = ({
       <Modal
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
-        title="Commit Status Updates"
-        description={`Update ${uncommitted.length} shipment${uncommitted.length !== 1 ? "s" : ""} and sync to server?`}
+        title="Update shipments?"
+        description={`This moves ${uncommitted.length} shipment${uncommitted.length !== 1 ? "s" : ""} to the next step, and syncs when online.`}
         footer={
           <>
             <Button variant="ghost" onClick={() => setShowConfirm(false)}>Cancel</Button>
-            <Button variant="primary" iconLeft="send" loading={committing} loadingLabel="Committing..." onClick={handleCommitAll}>
-              Commit {uncommitted.length} Update{uncommitted.length !== 1 ? "s" : ""}
+            <Button variant="primary" iconLeft="send" loading={committing} loadingLabel="Saving…" onClick={handleCommitAll}>
+              Update {uncommitted.length}
             </Button>
           </>
         }
@@ -438,7 +438,7 @@ export const RampScanner: React.FC<RampScannerProps> = ({
           <div className="p-3 rounded-lg bg-surface-sunken border border-border-subtle">
             <div className="grid grid-cols-3 gap-3 text-center">
               <div><div className="text-muted">Shipments</div><div className="font-mono font-black text-lg text-foreground">{uncommitted.length}</div></div>
-              <div><div className="text-muted">Station</div><div className="font-mono font-black text-lg text-foreground">{stationCode}</div></div>
+              <div><div className="text-muted">Location</div><div className="font-mono font-black text-lg text-foreground">{stationCode}</div></div>
               <div><div className="text-muted">Time</div><div className="font-mono font-bold text-foreground">{new Date().toLocaleTimeString()}</div></div>
             </div>
           </div>
@@ -448,14 +448,14 @@ export const RampScanner: React.FC<RampScannerProps> = ({
                 <span className="font-mono font-bold text-foreground">{item.awb}</span>
                 <div className="flex items-center gap-1.5">
                   <Badge tone={STATUS_TONE[item.shipment.status]} size="sm">{item.shipment.status.replace("_", " ")}</Badge>
-                  <span className="text-muted">\u2192</span>
+                  <span className="text-muted">→</span>
                   <Badge tone="amber" size="sm">{item.targetStatus.replace("_", " ")}</Badge>
                 </div>
               </div>
             ))}
           </div>
           <p className="text-muted">
-            Changes are applied locally and queued for server sync. If offline, they will sync automatically when connectivity is restored.
+            Saved on this device now. Syncs automatically when you're back online.
           </p>
         </div>
       </Modal>

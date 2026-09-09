@@ -45,11 +45,11 @@ export function validateIntakeForm(data: IntakeFormData): {
   const errors: IntakeValidationErrors = {};
 
   if (!data.destinationCode || data.destinationCode.trim().length === 0) {
-    errors.destinationCode = 'Destination airport hub is required';
+    errors.destinationCode = 'Choose a destination';
   }
 
   if (!data.senderName || data.senderName.trim().length < 3) {
-    errors.senderName = 'Shipper name must be at least 3 characters';
+    errors.senderName = 'Enter the sender name';
   }
 
   if (!data.senderPhone || !isValidNigerianPhone(data.senderPhone)) {
@@ -57,33 +57,33 @@ export function validateIntakeForm(data: IntakeFormData): {
   }
 
   if (!data.consigneeName || data.consigneeName.trim().length < 3) {
-    errors.consigneeName = 'Consignee name must be at least 3 characters';
+    errors.consigneeName = 'Enter the recipient name';
   }
 
   if (!data.consigneePhone || !isValidNigerianPhone(data.consigneePhone)) {
-    errors.consigneePhone = 'Enter a valid Nigerian phone number for consignee contact';
+    errors.consigneePhone = 'Enter a valid phone number for the recipient';
   }
 
   if (!data.pieces || data.pieces < 1) {
-    errors.pieces = 'At least 1 piece is required';
+    errors.pieces = 'Enter at least 1 item';
   } else if (!Number.isInteger(data.pieces)) {
-    errors.pieces = 'Pieces count must be an integer';
+    errors.pieces = 'Number of items must be a whole number';
   } else if (data.pieces > 999) {
-    errors.pieces = 'Maximum 999 pieces per single waybill entry';
+    errors.pieces = 'Maximum 999 items';
   }
 
   if (!data.weightKg || data.weightKg <= 0) {
-    errors.weightKg = 'Weight must be greater than 0 kg';
+    errors.weightKg = 'Enter a weight above 0 kg';
   } else if (data.weightKg > 5000) {
-    errors.weightKg = 'Maximum gross weight is 5,000 kg per consignment';
+    errors.weightKg = 'Maximum weight is 5,000 kg';
   }
 
   if (!data.contentType || data.contentType.trim().length < 2) {
-    errors.contentType = 'Please specify description of goods / cargo contents';
+    errors.contentType = 'Say what is in the shipment';
   }
 
   if (data.declaredValue !== undefined && data.declaredValue < 0) {
-    errors.declaredValue = 'Declared value cannot be negative';
+    errors.declaredValue = 'Value cannot be negative';
   }
 
   return {

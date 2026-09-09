@@ -77,10 +77,10 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
         return;
       }
 
-      setError(`Waybill "${query}" was not found in the manifest registry.`);
+      setError(`We couldn't find a shipment with tracking number "${query}".`);
       setShipment(null);
     } catch {
-      setError("Unable to contact live flight tracking servers. Please check connection.");
+      setError("Couldn't reach the tracking service. Check your connection and try again.");
       setShipment(null);
     } finally {
       setLoading(false);
@@ -95,12 +95,12 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
 
   const getTimeline = (status: string): TrackingTimelineStep[] => {
     const statuses = [
-      { key: "received", label: "Intake & Booked", desc: "Cargo registered at origin airport cargo terminal", icon: "package_2" },
-      { key: "security_cleared", label: "AVSEC Screened", desc: "Security and contraband scanning completed", icon: "verified_user" },
-      { key: "manifested", label: "Manifest Batched", desc: `Loaded on flight manifest (${shipment?.flight_number || "Standby"})`, icon: "flight_takeoff" },
-      { key: "departed", label: "In Flight / Airborne", desc: `Departed origin hub heading to destination`, icon: "arrow_forward" },
-      { key: "arrived", label: "Landed & Available", desc: "Cargo arrived at destination airport holding desk", icon: "location_on" },
-      { key: "delivered", label: "Consignee Handover", desc: "Released to verified consignee via security PIN", icon: "check_circle" },
+      { key: "received", label: "Received", desc: "Taken in at the airport cargo desk", icon: "package_2" },
+      { key: "security_cleared", label: "Security checked", desc: "Passed the airport security scan", icon: "verified_user" },
+      { key: "manifested", label: "Added to a flight", desc: `On flight ${shipment?.flight_number || "(to be set)"}`, icon: "flight_takeoff" },
+      { key: "departed", label: "In the air", desc: "The flight has left", icon: "arrow_forward" },
+      { key: "arrived", label: "Arrived", desc: "At the destination airport, ready for collection", icon: "location_on" },
+      { key: "delivered", label: "Collected", desc: "Handed to the recipient after they showed the PIN", icon: "check_circle" },
     ];
 
     const currentIndex = statuses.findIndex((s) => s.key === status);
@@ -123,13 +123,13 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
       {/* Top Hero Banner */}
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent-amber/15 text-accent-amber text-xs font-semibold border border-accent-amber/30">
-          <Icon name="flight_takeoff" size={14} /> Live Aviation Cargo Tracking Portal
+          <Icon name="flight_takeoff" size={14} /> Shipment tracking
         </div>
         <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
-          Track Your Consignment
+          Track your shipment
         </h1>
         <p className="text-xs sm:text-sm text-muted max-w-md mx-auto">
-          Enter your Air Waybill (AWB) number to view real-time flight transit status and airport arrival verification.
+          Enter the tracking number from your receipt to see where your shipment is.
         </p>
       </div>
 
@@ -144,7 +144,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
         >
           <div className="flex-1">
             <TextField
-              placeholder="e.g. LOS-2026-000492 or PENDING-..."
+              placeholder="e.g. LOS-2026-000492"
               value={searchAwb}
               onChange={(e) => setSearchAwb(e.target.value)}
               iconLeft="search"
@@ -156,16 +156,16 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
             variant="primary"
             size="md"
             loading={loading}
-            loadingLabel="Locating..."
+            loadingLabel="Searching…"
             iconLeft="search"
           >
-            Track Waybill
+            Track
           </Button>
         </form>
 
         {/* Quick Suggestion Pills */}
         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border-subtle text-xs text-muted">
-          <span>Sample Domestic AWBs:</span>
+          <span>Try:</span>
           {["LOS-2026-000492", "ABV-2026-000104"].map((awb) => (
             <button
               key={awb}
@@ -200,14 +200,13 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
               <div>
                 <span className="text-[11px] font-semibold text-muted uppercase tracking-wider block">
-                  Air Waybill Number
+                  Tracking number
                 </span>
                 <span className="text-xl font-black font-mono text-foreground tracking-wide">
                   {shipment.awb_number}
                 </span>
                 <div className="text-xs text-muted mt-0.5">
-                  Carrier: <strong className="text-foreground">{tenantName}</strong> · Service:{" "}
-                  <span className="uppercase">{shipment.type?.replace("_", " ") || "Air Cargo"}</span>
+                  Sent by <strong className="text-foreground">{tenantName}</strong>
                 </div>
               </div>
 
@@ -223,7 +222,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
                   size="md"
                   dot
                 >
-                  Status: {shipment.status?.replace("_", " ").toUpperCase()}
+                  {shipment.status?.replace("_", " ")}
                 </Badge>
               </div>
             </div>
@@ -231,7 +230,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
             {/* Hub To Hub Visual Indicator */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-5 items-center text-center sm:text-left">
               <div className="space-y-1">
-                <div className="text-[10px] uppercase font-bold text-muted">ORIGIN AIRPORT</div>
+                <div className="text-[10px] uppercase font-bold text-muted">FROM</div>
                 <div className="text-2xl font-black font-mono text-foreground">{shipment.origin_code}</div>
                 <div className="text-xs text-muted">{shipment.origin_city}</div>
               </div>
@@ -246,45 +245,39 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
                   <div className="h-0.5 flex-1 bg-border" />
                 </div>
                 <div className="text-[10px] text-muted">
-                  {shipment.flight_date ? `Flight Date: ${shipment.flight_date}` : "Daily Rotation"}
+                  {shipment.flight_date ? `Date: ${shipment.flight_date}` : "Not scheduled yet"}
                 </div>
               </div>
 
               <div className="space-y-1 text-center sm:text-right">
-                <div className="text-[10px] uppercase font-bold text-muted">DESTINATION AIRPORT</div>
+                <div className="text-[10px] uppercase font-bold text-muted">TO</div>
                 <div className="text-2xl font-black font-mono text-foreground">{shipment.destination_code}</div>
                 <div className="text-xs text-muted">{shipment.destination_city}</div>
               </div>
             </div>
 
-            {/* Key Consignment Specs */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-border text-xs">
+            {/* Key specs */}
+            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border text-xs">
               <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle">
-                <span className="text-muted block text-[10px]">TOTAL PIECES</span>
-                <span className="font-mono font-bold text-foreground text-sm">{shipment.pieces} PKG</span>
+                <span className="text-muted block text-[10px]">ITEMS</span>
+                <span className="font-mono font-bold text-foreground text-sm">{shipment.pieces}</span>
               </div>
               <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle">
-                <span className="text-muted block text-[10px]">GROSS SCALE WEIGHT</span>
-                <span className="font-mono font-bold text-foreground text-sm">{shipment.weight_kg} Kg</span>
-              </div>
-              <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle">
-                <span className="text-muted block text-[10px]">SECURITY STATUS</span>
-                <span className="font-semibold text-success text-sm flex items-center gap-1">
-                  <Icon name="verified_user" size={14} /> Screened OK
-                </span>
-              </div>
-              <div className="p-3 rounded-lg bg-surface-2 border border-border-subtle">
-                <span className="text-muted block text-[10px]">DELIVERY PROTOCOL</span>
-                <span className="font-semibold text-foreground text-sm">4-Digit PIN Required</span>
+                <span className="text-muted block text-[10px]">WEIGHT</span>
+                <span className="font-mono font-bold text-foreground text-sm">{shipment.weight_kg} kg</span>
               </div>
             </div>
+            <p className="text-[11px] text-muted mt-2 flex items-center gap-1">
+              <Icon name="verified_user" size={13} className="text-success" />
+              Security checked · the recipient needs the collection PIN
+            </p>
           </Card>
 
           {/* Vertical Progress Timeline */}
           <Card
             header={
               <span className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Icon name="schedule" size={16} className="text-accent-amber" /> Real-Time Chain of Custody Timeline
+                <Icon name="schedule" size={16} className="text-accent-amber" /> Progress
               </span>
             }
           >
@@ -320,7 +313,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
                         </span>
                         {step.current && (
                           <Badge tone="amber" size="sm">
-                            Active Step
+                            Now
                           </Badge>
                         )}
                       </div>
@@ -337,14 +330,14 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
             <div className="space-y-1 text-center sm:text-left">
               <h4 className="text-sm font-bold text-foreground flex items-center justify-center sm:justify-start gap-2">
                 <Icon name="chat" size={16} className="text-success" />
-                Need Assistance With This Cargo?
+                Need help with this shipment?
               </h4>
               <p className="text-xs text-muted">
-                Our airport desk operations support team is available for real-time airway bill inquiries.
+                Message the airport cargo desk on WhatsApp.
               </p>
             </div>
             <a
-              href={`https://wa.me/2348000000000?text=Hello%2C%20I%20am%20tracking%20Air%20Waybill%20${shipment.awb_number}%20and%20require%20assistance.`}
+              href={`https://wa.me/2348000000000?text=Hello%2C%20I%27m%20tracking%20shipment%20${shipment.awb_number}%20and%20need%20help.`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-success text-white text-xs font-bold hover:bg-success/90 transition-all shrink-0 cursor-pointer shadow-sm"
@@ -358,7 +351,7 @@ export const PublicTrackingPage: React.FC<PublicTrackingPageProps> = ({
       {/* Footer Branding */}
       {!isWhiteLabel && (
         <div className="text-center pt-4 text-xs text-muted">
-          ⚡ Powered by <strong className="text-foreground">AeroLogistics Cloud Suite</strong> — Aviation Cargo Logistics Platform
+          Powered by <strong className="text-foreground">AeroLogistics</strong>
         </div>
       )}
     </div>

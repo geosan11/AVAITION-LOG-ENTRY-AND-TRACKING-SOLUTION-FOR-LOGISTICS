@@ -67,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   AEROLOGISTICS
                 </span>
                 <span className="font-label-caps text-label-caps tracking-wider text-on-surface-variant font-medium truncate">
-                  CARGO CONSOLE
+                  CARGO DESK
                 </span>
               </div>
             )}
@@ -130,8 +130,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
           {!collapsed && (
             <div className="p-2 rounded-lg bg-surface-container-lowest/60 flex items-center justify-between">
-              <span className="font-label-caps text-label-caps text-on-surface-variant">OPS SUITE</span>
-              <span className="font-mono-data-sm text-mono-data-sm text-accent-amber font-semibold">v1.0.0</span>
+              <span className="font-label-caps text-label-caps text-on-surface-variant">VERSION</span>
+              <span className="font-mono-data-sm text-mono-data-sm text-accent-amber font-semibold">1.0.0</span>
             </div>
           )}
         </div>

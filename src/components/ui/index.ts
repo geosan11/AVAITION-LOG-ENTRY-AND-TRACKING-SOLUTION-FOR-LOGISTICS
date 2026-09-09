@@ -8,3 +8,5 @@ export * from './Sheet';
 export * from './PageHeader';
 export * from './Spinner';
 export * from './Icon';
+export * from './Disclosure';
+export * from './InfoHint';

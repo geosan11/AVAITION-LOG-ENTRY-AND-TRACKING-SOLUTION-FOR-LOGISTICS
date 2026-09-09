@@ -14,77 +14,68 @@ export interface NavItem {
   label: string;
   /** Material Symbols glyph — kept distinct from every in-screen section icon. */
   icon: string;
-  group: 'operations' | 'commercial' | 'platform';
+  group: 'daily' | 'billing' | 'setup';
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { id: 'terminal',   label: 'Desk Terminal',  icon: 'point_of_sale',     group: 'operations' },
-  { id: 'manifest',   label: 'Manifest',       icon: 'assignment',        group: 'operations' },
-  { id: 'scanner',    label: 'Ramp Scan',      icon: 'barcode_scanner',   group: 'operations' },
-  { id: 'tracking',   label: 'Cargo Tracking', icon: 'radar',             group: 'operations' },
-  { id: 'audit',      label: 'Weight Audit',   icon: 'scale',             group: 'operations' },
-  { id: 'corporate',  label: 'B2B Ledger',     icon: 'account_balance',   group: 'commercial' },
-  { id: 'admin',      label: 'Rate Cards',     icon: 'sell',              group: 'commercial' },
-  { id: 'tiers',      label: 'SaaS Tiers',     icon: 'workspace_premium', group: 'platform' },
-  { id: 'onboarding', label: 'Onboarding',     icon: 'rocket_launch',     group: 'platform' },
+  { id: 'terminal',   label: 'New shipment',   icon: 'point_of_sale',     group: 'daily' },
+  { id: 'manifest',   label: 'Flights',        icon: 'assignment',        group: 'daily' },
+  { id: 'scanner',    label: 'Scan cargo',     icon: 'barcode_scanner',   group: 'daily' },
+  { id: 'tracking',   label: 'Track shipment', icon: 'radar',             group: 'daily' },
+  { id: 'audit',      label: 'Weight check',   icon: 'scale',             group: 'daily' },
+  { id: 'corporate',  label: 'Business accounts', icon: 'account_balance', group: 'billing' },
+  { id: 'admin',      label: 'Pricing',        icon: 'sell',              group: 'billing' },
+  { id: 'tiers',      label: 'Plans & billing', icon: 'workspace_premium', group: 'billing' },
+  { id: 'onboarding', label: 'Setup guide',    icon: 'rocket_launch',     group: 'setup' },
 ];
 
 export const GROUP_LABELS: Record<NavItem['group'], string> = {
-  operations: 'RAMP OPERATIONS',
-  commercial: 'COMMERCIAL',
-  platform: 'PLATFORM',
+  daily: 'DAILY WORK',
+  billing: 'BILLING',
+  setup: 'SETUP',
 };
 
 export interface ViewMeta {
   title: string;
+  /** One plain sentence — shown under the title on every screen. */
   subtitle: string;
-  breadcrumb: string;
 }
 
 export const VIEW_META: Record<ViewId, ViewMeta> = {
   terminal: {
-    title: 'Air Cargo Intake Desk',
-    subtitle: 'AIR WAYBILL CREATION · VOLUMETRIC AUDIT & INSTANT MANIFESTING',
-    breadcrumb: 'TERMINAL MMA2 CARGO BAY A · INTAKE DESK #04',
+    title: 'New shipment',
+    subtitle: 'Take in a shipment, check its size and price, and get a tracking number.',
   },
   manifest: {
-    title: 'Flight Manifest Builder',
-    subtitle: 'BATCH CARGO · LOCK & DISPATCH · BULK STATUS TRANSITIONS',
-    breadcrumb: 'TERMINAL MMA2 · DISPATCH CONTROL',
+    title: 'Flights & loading',
+    subtitle: 'Add shipments to a flight, then lock and send it off.',
   },
   scanner: {
-    title: 'Ramp Barcode Scanner',
-    subtitle: 'TARMAC AWB CAPTURE · OFFLINE BATCH STATUS UPDATES',
-    breadcrumb: 'TERMINAL MMA2 · RAMP APRON',
+    title: 'Scan cargo',
+    subtitle: 'Scan shipment barcodes to move them to the next step. Works offline.',
   },
   tracking: {
-    title: 'Cargo Tracking Portal',
-    subtitle: 'LIVE FLIGHT TRANSIT STATUS · ARRIVAL VERIFICATION',
-    breadcrumb: 'PUBLIC · CONSIGNEE SELF-SERVICE',
+    title: 'Track a shipment',
+    subtitle: 'Enter a tracking number to see where a shipment is.',
   },
   audit: {
-    title: 'Ramp Weight Audit',
-    subtitle: 'SCALE RECONCILIATION · REVENUE RECOVERY ENGINE',
-    breadcrumb: 'TERMINAL MMA2 · AIRCRAFT HOLD',
+    title: 'Weight check',
+    subtitle: 'Compare the weight measured at the aircraft with the weight recorded at the desk.',
   },
   corporate: {
-    title: 'B2B Corporate Ledger',
-    subtitle: 'CREDIT TERMS · MONTHLY STATEMENTS · CREDIT HOLDS',
-    breadcrumb: 'HQ · ACCOUNTS RECEIVABLE',
+    title: 'Business accounts',
+    subtitle: 'Set credit limits, send monthly statements, and put accounts on hold.',
   },
   admin: {
-    title: 'Rate Card Management',
-    subtitle: 'FREIGHT TARIFFS · ROUTE OVERRIDES · SURCHARGES',
-    breadcrumb: 'HQ · REVENUE ADMIN',
+    title: 'Pricing',
+    subtitle: 'Set the price per kilogram for each route.',
   },
   tiers: {
-    title: 'SaaS Subscription Tiers',
-    subtitle: 'PAYSTACK LIFECYCLE · RLS-ENFORCED PLAN LIMITS',
-    breadcrumb: 'PLATFORM · BILLING',
+    title: 'Plans & billing',
+    subtitle: 'Choose a plan. Billed through Paystack.',
   },
   onboarding: {
-    title: 'Tenant Onboarding',
-    subtitle: 'FIRST-RUN SETUP · COMPANY · HUB · RATES · TEAM',
-    breadcrumb: 'PLATFORM · PROVISIONING',
+    title: 'Setup guide',
+    subtitle: 'Add your company, first location, prices, and team.',
   },
 };

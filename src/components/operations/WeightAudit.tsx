@@ -5,6 +5,8 @@ import { TextField } from "@/components/ui/TextField";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { Icon } from "@/components/ui/Icon";
+import { Disclosure } from "@/components/ui/Disclosure";
+import { InfoHint } from "@/components/ui/InfoHint";
 import { formatCurrency } from "@/lib/ui";
 
 export interface WeightAuditRecord {
@@ -75,6 +77,7 @@ export const WeightAudit: React.FC = () => {
   const [ratePerKg] = useState(750);
   const [showDebitModal, setShowDebitModal] = useState(false);
   const [selectedAudit, setSelectedAudit] = useState<WeightAuditRecord | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const totalRecoveredRevenue = logs.reduce(
     (acc, l) => acc + (l.status === "supplementary_debited" ? l.chargeShortfall : 0),
@@ -122,70 +125,51 @@ export const WeightAudit: React.FC = () => {
 
   return (
     <div className="w-full flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-            <Icon name="monitor_weight" className="text-accent-amber" size={20} />
-            Ramp Weight Audit & Revenue Recovery Engine
-          </h2>
-          <p className="text-xs text-muted mt-0.5">
-            Audit tarmac scale weights against desk booking entries to eliminate cargo weight leakage and recover lost freight revenue.
-          </p>
-        </div>
-
-        <Badge tone="amber" dot size="md">
-          ICAO Annex 18 & NCAA Safety Compliant
-        </Badge>
-      </div>
-
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="p-4 bg-surface-card border-border">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted">Recovered Revenue This Month</span>
+            <span className="text-xs font-semibold text-muted">Extra charges billed this month</span>
             <Icon name="paid" size={16} className="text-success" />
           </div>
           <div className="text-2xl font-black font-mono text-success mt-2">
             {formatCurrency(totalRecoveredRevenue)}
           </div>
-          <p className="text-[11px] text-muted mt-1">Supplementary debits billed to shippers</p>
+          <p className="text-[11px] text-muted mt-1">Billed to senders for underweight shipments</p>
         </Card>
 
         <Card className="p-4 bg-surface-card border-error/30">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted">Pending Undeclared Discrepancies</span>
+            <span className="text-xs font-semibold text-muted">Differences not yet billed</span>
             <Icon name="report" size={16} className="text-error" />
           </div>
           <div className="text-2xl font-black font-mono text-error mt-2">
             {formatCurrency(totalPendingShortfall)}
           </div>
-          <p className="text-[11px] text-muted mt-1">Weight variance awaiting authorization</p>
-        </Card>
-
-        <Card className="p-4 bg-surface-card border-border">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted">Tarmac Weight Leakage Rate</span>
-            <Icon name="scale" size={16} className="text-accent-amber" />
-          </div>
-          <div className="text-2xl font-black font-mono text-foreground mt-2">6.8% Variance</div>
-          <p className="text-[11px] text-muted mt-1">Avg +3.2 kg under-reported at counter</p>
+          <p className="text-[11px] text-muted mt-1">Waiting for a manager to add the charge</p>
         </Card>
       </div>
 
-      {/* Quick Ramp Audit Entry Box */}
+      <Disclosure label="More stats" persistKey="audit-more-stats">
+        <div className="pt-2 flex items-baseline justify-between text-xs">
+          <span className="text-muted">Average weight under-reported at the desk</span>
+          <span className="font-mono font-bold text-foreground">+3.2 kg (6.8%)</span>
+        </div>
+      </Disclosure>
+
+      {/* Weight check entry */}
       <Card
         className="border-accent-amber/40 ring-1 ring-accent-amber/15"
         header={
           <span className="text-sm font-bold text-foreground flex items-center gap-2">
             <Icon name="scale" size={16} className="text-accent-amber" />
-            Live Aircraft Hold Scale Re-Weigh Inspector
+            Check a shipment's weight
           </span>
         }
       >
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
           <TextField
-            label="Scanned Air Waybill"
+            label="Tracking number"
             value={activeAwb}
             onChange={(e) => setActiveAwb(e.target.value)}
             placeholder="LOS-2026-000492"
@@ -194,7 +178,7 @@ export const WeightAudit: React.FC = () => {
           />
 
           <TextField
-            label="Counter Intake Weight (Kg)"
+            label="Weight recorded at desk (kg)"
             type="number"
             step="0.1"
             value={intakeWeight}
@@ -203,13 +187,13 @@ export const WeightAudit: React.FC = () => {
           />
 
           <TextField
-            label="Ramp Scale Reading (Kg)"
+            label="Weight measured at aircraft (kg)"
             type="number"
             step="0.1"
             value={rampScaleWeight}
             onChange={(e) => setRampScaleWeight(parseFloat(e.target.value) || 0)}
             mono
-            hint={discrepancy > 0 ? `+${discrepancy} kg discrepancy detected` : "Matched"}
+            hint={discrepancy > 0 ? `${discrepancy} kg heavier` : "Same"}
           />
 
           <Button
@@ -219,32 +203,33 @@ export const WeightAudit: React.FC = () => {
             onClick={handleCommitAudit}
             className="w-full"
           >
-            Log Ramp Audit
+            Save check
           </Button>
         </div>
 
         {discrepancy > 0.5 && (
-          <div className="mt-4 p-3 rounded-xl bg-error-bg border border-error-border text-xs flex items-center justify-between">
+          <div className="mt-4 p-3 rounded-xl bg-error-bg border border-error-border text-xs flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-error-fg font-medium">
-              <Icon name="gpp_maybe" size={16} />
+              <Icon name="gpp_maybe" size={16} className="shrink-0" />
               <span>
-                Weight Discrepancy Detected: <strong>+{discrepancy} Kg</strong> overweight. Uncollected Freight Shortfall:{" "}
+                This shipment is <strong>{discrepancy} kg</strong> heavier than paid for. Extra charge:{" "}
                 <strong>{formatCurrency(calculatedShortfall)}</strong>.
+                <InfoHint term="supplementaryDebit" size={12} className="ml-1" />
               </span>
             </div>
             <Badge tone="error" size="sm">
-              ACTION REQUIRED
+              Needs a charge
             </Badge>
           </div>
         )}
       </Card>
 
-      {/* Audit Log Table */}
+      {/* Recent checks */}
       <Card
         header={
           <div className="flex items-center justify-between w-full">
-            <span className="text-sm font-bold text-foreground">Recent Ramp Weight Verification Logs</span>
-            <Badge tone="info">{logs.length} Consignments Screened</Badge>
+            <span className="text-sm font-bold text-foreground">Recent checks</span>
+            <Badge tone="info">{logs.length} checked</Badge>
           </div>
         }
       >
@@ -252,70 +237,96 @@ export const WeightAudit: React.FC = () => {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border text-muted font-semibold">
-                <th className="text-left py-3 px-4">Waybill Number</th>
-                <th className="text-left py-3 px-4">Routing</th>
-                <th className="text-right py-3 px-4">Desk Weight</th>
-                <th className="text-right py-3 px-4">Ramp Scale</th>
-                <th className="text-right py-3 px-4">Variance (Kg)</th>
-                <th className="text-right py-3 px-4">Freight Shortfall</th>
+                <th className="text-left py-3 px-4">Tracking number</th>
+                <th className="text-right py-3 px-4">Difference</th>
+                <th className="text-right py-3 px-4">Extra charge</th>
                 <th className="text-center py-3 px-4">Status</th>
-                <th className="text-right py-3 px-4">Action</th>
+                <th className="text-right py-3 px-4"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-subtle">
-              {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-surface-hover transition-colors">
-                  <td className="py-3 px-4 font-mono font-bold text-foreground">{log.awbNumber}</td>
-                  <td className="py-3 px-4 font-mono text-muted">
-                    {log.originHub} ➔ {log.destinationHub}
-                  </td>
-                  <td className="py-3 px-4 text-right font-mono text-muted">{log.intakeWeightKg} kg</td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-foreground">
-                    {log.rampWeightKg} kg
-                  </td>
-                  <td className="py-3 px-4 text-right font-mono">
-                    {log.discrepancyKg > 0.5 ? (
-                      <span className="text-error font-bold">+{log.discrepancyKg} kg</span>
-                    ) : (
-                      <span className="text-success">OK (0.0 kg)</span>
+              {logs.map((log) => {
+                const open = expandedId === log.id;
+                return (
+                  <React.Fragment key={log.id}>
+                    <tr className="hover:bg-surface-hover transition-colors">
+                      <td className="py-3 px-4 font-mono font-bold text-foreground">{log.awbNumber}</td>
+                      <td className="py-3 px-4 text-right font-mono">
+                        {log.discrepancyKg > 0.5 ? (
+                          <span className="text-error font-bold">+{log.discrepancyKg} kg</span>
+                        ) : (
+                          <span className="text-success">Same</span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-bold text-foreground">
+                        {log.chargeShortfall > 0 ? formatCurrency(log.chargeShortfall) : "—"}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {log.status === "supplementary_debited" ? (
+                          <Badge tone="success" size="sm" dot>Charged</Badge>
+                        ) : log.status === "discrepancy_flagged" ? (
+                          <Badge tone="error" size="sm" dot>Needs a charge</Badge>
+                        ) : (
+                          <Badge tone="neutral" size="sm">Weight OK</Badge>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                        {log.status === "discrepancy_flagged" && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedAudit(log);
+                              setShowDebitModal(true);
+                            }}
+                          >
+                            Add charge
+                          </Button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setExpandedId(open ? null : log.id)}
+                          aria-expanded={open}
+                          aria-label={open ? "Hide details" : "Show details"}
+                          className="ml-2 p-1 rounded text-muted hover:text-foreground cursor-pointer align-middle"
+                        >
+                          <Icon
+                            name="expand_more"
+                            size={16}
+                            className={`transition-transform ${open ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                    {open && (
+                      <tr className="bg-surface-container/40">
+                        <td colSpan={5} className="py-2.5 px-4">
+                          <div className="flex flex-wrap gap-x-8 gap-y-1.5 text-[11px] text-muted">
+                            <span>
+                              Route:{" "}
+                              <strong className="font-mono text-foreground">
+                                {log.originHub} ➔ {log.destinationHub}
+                              </strong>
+                            </span>
+                            <span>
+                              At desk:{" "}
+                              <strong className="font-mono text-foreground">{log.intakeWeightKg} kg</strong>
+                            </span>
+                            <span>
+                              At aircraft:{" "}
+                              <strong className="font-mono text-foreground">{log.rampWeightKg} kg</strong>
+                            </span>
+                            <span>
+                              Checked by <strong className="text-foreground">{log.auditorName}</strong>,{" "}
+                              {log.scannedAt}
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
                     )}
-                  </td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-foreground">
-                    {log.chargeShortfall > 0 ? formatCurrency(log.chargeShortfall) : "—"}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    {log.status === "supplementary_debited" ? (
-                      <Badge tone="success" size="sm" dot>
-                        Debited & Billed
-                      </Badge>
-                    ) : log.status === "discrepancy_flagged" ? (
-                      <Badge tone="error" size="sm" dot>
-                        Flagged Shortfall
-                      </Badge>
-                    ) : (
-                      <Badge tone="neutral" size="sm">
-                        Verified Match
-                      </Badge>
-                    )}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    {log.status === "discrepancy_flagged" ? (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedAudit(log);
-                          setShowDebitModal(true);
-                        }}
-                      >
-                        Issue Debit
-                      </Button>
-                    ) : (
-                      <span className="text-muted text-[11px]">Reconciled</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -326,19 +337,19 @@ export const WeightAudit: React.FC = () => {
         <Modal
           isOpen={showDebitModal}
           onClose={() => setShowDebitModal(false)}
-          title="Issue Supplementary Freight Debit"
-          description={`Weight discrepancy of +${selectedAudit.discrepancyKg} kg detected on ${selectedAudit.awbNumber}.`}
+          title="Add extra charge"
+          description={`${selectedAudit.awbNumber} is ${selectedAudit.discrepancyKg} kg heavier than paid for.`}
           footer={
             <>
               <Button variant="ghost" onClick={() => setShowDebitModal(false)}>
-                Ignore Variance
+                Not now
               </Button>
               <Button
                 variant="primary"
                 iconLeft="paid"
                 onClick={() => handleAuthorizeDebit(selectedAudit.id)}
               >
-                Authorize Debit ({formatCurrency(selectedAudit.chargeShortfall)})
+                Add charge ({formatCurrency(selectedAudit.chargeShortfall)})
               </Button>
             </>
           }
@@ -346,24 +357,24 @@ export const WeightAudit: React.FC = () => {
           <div className="flex flex-col gap-4 text-xs">
             <div className="p-4 rounded-xl bg-surface-sunken border border-border flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-muted uppercase font-bold">PRIMARY AIR WAYBILL</span>
+                <span className="text-[10px] text-muted uppercase font-bold">Tracking number</span>
                 <div className="font-mono font-bold text-sm text-foreground">{selectedAudit.awbNumber}</div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-muted uppercase font-bold">WEIGHT DISCREPANCY</span>
-                <div className="font-mono font-bold text-error text-sm">+{selectedAudit.discrepancyKg} Kg</div>
+                <span className="text-[10px] text-muted uppercase font-bold">Weight difference</span>
+                <div className="font-mono font-bold text-error text-sm">+{selectedAudit.discrepancyKg} kg</div>
               </div>
             </div>
 
             <div className="p-3.5 rounded-xl bg-accent-amber/10 border border-accent-amber/30 space-y-1.5">
               <div className="flex justify-between items-center text-foreground font-semibold">
-                <span>Supplementary Under-Weight Fee:</span>
+                <span>Extra charge</span>
                 <span className="text-lg font-black font-mono text-foreground">
                   {formatCurrency(selectedAudit.chargeShortfall)}
                 </span>
               </div>
               <p className="text-[11px] text-muted">
-                Authorizing this will generate a supplementary debit notice against the shipper and prevent cargo release at destination until settled.
+                This bills the sender for the extra weight and holds the shipment at the destination until it's paid.
               </p>
             </div>
           </div>

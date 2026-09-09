@@ -73,6 +73,7 @@ export const CorporateLedger: React.FC = () => {
   const [contactEmail, setContactEmail] = useState("");
   const [creditLimit, setCreditLimit] = useState(1000000);
   const [paymentTerms, setPaymentTerms] = useState("30");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const totalCreditExtended = clients.reduce((acc, c) => acc + c.creditLimit, 0);
   const totalOutstandingBalance = clients.reduce((acc, c) => acc + c.currentBalance, 0);
@@ -109,10 +110,10 @@ export const CorporateLedger: React.FC = () => {
         <div>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
             <Icon name="account_balance" className="text-accent-amber" size={20} />
-            B2B Corporate Credit Ledger & Invoicing
+            Business accounts
           </h2>
           <p className="text-xs text-muted mt-0.5">
-            Manage institutional client credit terms, generate end-of-month statements, and enforce credit holds.
+            Companies that pay monthly instead of per shipment. Set a credit limit and send statements.
           </p>
         </div>
 
@@ -122,7 +123,7 @@ export const CorporateLedger: React.FC = () => {
           iconLeft="add"
           onClick={() => setShowAddModal(true)}
         >
-          New Corporate Account
+          New business account
         </Button>
       </div>
 
@@ -130,35 +131,35 @@ export const CorporateLedger: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="p-4 bg-surface-card border-border">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted">Active Institutional Accounts</span>
+            <span className="text-xs font-semibold text-muted">Business accounts</span>
             <Icon name="apartment" size={16} className="text-accent-amber" />
           </div>
           <div className="text-2xl font-black font-mono text-foreground mt-2">
-            {clients.length} Corporate Accounts
+            {clients.length}
           </div>
-          <p className="text-[11px] text-muted mt-1">Contractual air cargo shippers</p>
+          <p className="text-[11px] text-muted mt-1">Companies with a credit account</p>
         </Card>
 
         <Card className="p-4 bg-surface-card border-border">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted">Total Approved Credit Facility</span>
+            <span className="text-xs font-semibold text-muted">Total credit allowed</span>
             <Icon name="paid" size={16} className="text-success" />
           </div>
           <div className="text-2xl font-black font-mono text-foreground mt-2">
             {formatCurrency(totalCreditExtended)}
           </div>
-          <p className="text-[11px] text-muted mt-1">Pre-authorized freight limits</p>
+          <p className="text-[11px] text-muted mt-1">Across all business accounts</p>
         </Card>
 
         <Card className="p-4 bg-surface-card border-accent-amber/40">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted">Current Outstanding Receivables</span>
+            <span className="text-xs font-semibold text-muted">Owed to us now</span>
             <Icon name="trending_up" size={16} className="text-accent-amber" />
           </div>
           <div className="text-2xl font-black font-mono text-accent-amber mt-2">
             {formatCurrency(totalOutstandingBalance)}
           </div>
-          <p className="text-[11px] text-muted mt-1">Pending monthly reconciliation</p>
+          <p className="text-[11px] text-muted mt-1">To be settled this month</p>
         </Card>
       </div>
 
@@ -166,8 +167,8 @@ export const CorporateLedger: React.FC = () => {
       <Card
         header={
           <div className="flex items-center justify-between w-full">
-            <span className="text-sm font-bold text-foreground">Registered Corporate Accounts</span>
-            <Badge tone="info">{clients.length} Shippers Listed</Badge>
+            <span className="text-sm font-bold text-foreground">All business accounts</span>
+            <Badge tone="info">{clients.length}</Badge>
           </div>
         }
       >
@@ -175,97 +176,104 @@ export const CorporateLedger: React.FC = () => {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border text-muted font-semibold">
-                <th className="text-left py-3 px-4">Corporate Entity</th>
-                <th className="text-left py-3 px-4">Primary Contact</th>
-                <th className="text-right py-3 px-4">Credit Limit</th>
-                <th className="text-right py-3 px-4">Current Debt</th>
-                <th className="text-center py-3 px-4">Credit Utilization</th>
-                <th className="text-center py-3 px-4">Terms</th>
-                <th className="text-center py-3 px-4">Account Status</th>
-                <th className="text-right py-3 px-4">Statements</th>
+                <th className="text-left py-3 px-4">Company</th>
+                <th className="text-left py-3 px-4">Contact</th>
+                <th className="text-right py-3 px-4">Owes now</th>
+                <th className="text-center py-3 px-4">Status</th>
+                <th className="text-right py-3 px-4"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-subtle">
               {clients.map((client) => {
                 const utilizationPct = Math.round((client.currentBalance / client.creditLimit) * 100);
+                const open = expandedId === client.id;
                 return (
-                  <tr key={client.id} className="hover:bg-surface-hover transition-colors">
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-foreground text-sm">{client.companyName}</div>
-                      <div className="text-[11px] text-muted flex items-center gap-1.5 mt-0.5">
-                        <Icon name="mail" size={11} /> {client.contactEmail}
-                      </div>
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      <div className="font-medium text-foreground">{client.contactName}</div>
-                      <div className="text-[11px] text-muted font-mono flex items-center gap-1.5 mt-0.5">
-                        <Icon name="call" size={11} /> {client.contactPhone}
-                      </div>
-                    </td>
-
-                    <td className="py-3.5 px-4 text-right font-mono font-semibold text-foreground">
-                      {formatCurrency(client.creditLimit)}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-right font-mono font-bold text-foreground">
-                      {formatCurrency(client.currentBalance)}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-center">
-                      <div className="flex flex-col items-center gap-1 max-w-[100px] mx-auto">
-                        <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${
-                              utilizationPct >= 90
-                                ? "bg-error"
-                                : utilizationPct >= 65
-                                ? "bg-accent-amber"
-                                : "bg-success"
-                            }`}
-                            style={{ width: `${Math.min(100, utilizationPct)}%` }}
-                          />
+                  <React.Fragment key={client.id}>
+                    <tr className="hover:bg-surface-hover transition-colors">
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-foreground text-sm">{client.companyName}</div>
+                        <div className="text-[11px] text-muted flex items-center gap-1.5 mt-0.5">
+                          <Icon name="mail" size={11} /> {client.contactEmail}
                         </div>
-                        <span className="text-[10px] font-mono text-muted">{utilizationPct}%</span>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="py-3.5 px-4 text-center font-mono">
-                      <Badge tone="neutral" size="sm">
-                        Net {client.paymentTermsDays}d
-                      </Badge>
-                    </td>
+                      <td className="py-3.5 px-4">
+                        <div className="font-medium text-foreground">{client.contactName}</div>
+                        <div className="text-[11px] text-muted font-mono flex items-center gap-1.5 mt-0.5">
+                          <Icon name="call" size={11} /> {client.contactPhone}
+                        </div>
+                      </td>
 
-                    <td className="py-3.5 px-4 text-center">
-                      {client.status === "active" ? (
-                        <Badge tone="success" size="sm" dot>
-                          Active
-                        </Badge>
-                      ) : client.status === "credit_hold" ? (
-                        <Badge tone="warning" size="sm" dot>
-                          Credit Hold
-                        </Badge>
-                      ) : (
-                        <Badge tone="error" size="sm" dot>
-                          Suspended
-                        </Badge>
-                      )}
-                    </td>
+                      <td className="py-3.5 px-4 text-right font-mono font-bold text-foreground">
+                        {formatCurrency(client.currentBalance)}
+                      </td>
 
-                    <td className="py-3.5 px-4 text-right">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        iconLeft="description"
-                        onClick={() => {
-                          setSelectedClient(client);
-                          setShowStatementModal(true);
-                        }}
-                      >
-                        Statement
-                      </Button>
-                    </td>
-                  </tr>
+                      <td className="py-3.5 px-4 text-center">
+                        {client.status === "active" ? (
+                          <Badge tone="success" size="sm" dot>Active</Badge>
+                        ) : client.status === "credit_hold" ? (
+                          <Badge tone="warning" size="sm" dot>On hold</Badge>
+                        ) : (
+                          <Badge tone="error" size="sm" dot>Suspended</Badge>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          iconLeft="description"
+                          onClick={() => {
+                            setSelectedClient(client);
+                            setShowStatementModal(true);
+                          }}
+                        >
+                          Statement
+                        </Button>
+                        <button
+                          type="button"
+                          onClick={() => setExpandedId(open ? null : client.id)}
+                          aria-expanded={open}
+                          aria-label={open ? "Hide details" : "Show details"}
+                          className="ml-2 p-1 rounded text-muted hover:text-foreground cursor-pointer align-middle"
+                        >
+                          <Icon
+                            name="expand_more"
+                            size={16}
+                            className={`transition-transform ${open ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                    {open && (
+                      <tr className="bg-surface-container/40">
+                        <td colSpan={5} className="py-3 px-4">
+                          <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-[11px] text-muted">
+                            <span>
+                              Credit limit:{" "}
+                              <strong className="font-mono text-foreground">{formatCurrency(client.creditLimit)}</strong>
+                            </span>
+                            <span className="flex items-center gap-2">
+                              Used:
+                              <span className="inline-block w-24 bg-surface-2 h-1.5 rounded-full overflow-hidden align-middle">
+                                <span
+                                  className={`block h-full ${
+                                    utilizationPct >= 90 ? "bg-error" : utilizationPct >= 65 ? "bg-accent-amber" : "bg-success"
+                                  }`}
+                                  style={{ width: `${Math.min(100, utilizationPct)}%` }}
+                                />
+                              </span>
+                              <strong className="font-mono text-foreground">{utilizationPct}%</strong>
+                            </span>
+                            <span>
+                              Pays within{" "}
+                              <strong className="text-foreground">{client.paymentTermsDays} days</strong>
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 );
               })}
             </tbody>
@@ -277,22 +285,22 @@ export const CorporateLedger: React.FC = () => {
       <Modal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        title="Open B2B Corporate Credit Facility"
-        description="Register an institutional client for monthly invoicing and pre-approved cargo credit."
+        title="New business account"
+        description="Add a company that pays monthly instead of per shipment."
         footer={
           <>
             <Button variant="ghost" onClick={() => setShowAddModal(false)}>
               Cancel
             </Button>
             <Button variant="primary" iconLeft="add" onClick={handleCreateClient}>
-              Create Account
+              Create account
             </Button>
           </>
         }
       >
         <form onSubmit={handleCreateClient} className="flex flex-col gap-4 text-xs">
           <TextField
-            label="Corporate / Company Entity Name"
+            label="Company name"
             placeholder="e.g. Nigerian National Petroleum Co. Ltd"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
@@ -301,13 +309,13 @@ export const CorporateLedger: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <TextField
-              label="Logistics Liaison Person"
+              label="Contact person"
               placeholder="e.g. Tunde Bakare"
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
             />
             <TextField
-              label="Contact Phone"
+              label="Contact phone"
               placeholder="08012345678"
               value={contactPhone}
               onChange={(e) => setContactPhone(e.target.value)}
@@ -316,31 +324,31 @@ export const CorporateLedger: React.FC = () => {
           </div>
 
           <TextField
-            label="Official Billing Email Address"
+            label="Billing email"
             type="email"
-            placeholder="accounts.payable@nnpc.ng"
+            placeholder="accounts@company.com"
             value={contactEmail}
             onChange={(e) => setContactEmail(e.target.value)}
-            hint="Monthly itemized PDF statement will be dispatched here"
+            hint="Monthly statements are sent here"
           />
 
           <div className="grid grid-cols-2 gap-3">
             <TextField
-              label="Credit Facility Ceiling (₦)"
+              label="Credit limit (₦)"
               type="number"
               value={creditLimit}
               onChange={(e) => setCreditLimit(Number(e.target.value))}
               mono
             />
             <Select
-              label="Payment Terms"
+              label="Pays within"
               value={paymentTerms}
               onChange={(e) => setPaymentTerms(e.target.value)}
               options={[
-                { value: "15", label: "Net 15 Days" },
-                { value: "30", label: "Net 30 Days (Standard)" },
-                { value: "45", label: "Net 45 Days" },
-                { value: "60", label: "Net 60 Days (Enterprise)" },
+                { value: "15", label: "15 days" },
+                { value: "30", label: "30 days (standard)" },
+                { value: "45", label: "45 days" },
+                { value: "60", label: "60 days" },
               ]}
             />
           </div>
@@ -352,15 +360,15 @@ export const CorporateLedger: React.FC = () => {
         <Modal
           isOpen={showStatementModal}
           onClose={() => setShowStatementModal(false)}
-          title={`Corporate Statement: ${selectedClient.companyName}`}
-          description={`Contractual cargo billing statement for ${new Date().toLocaleString("en-US", { month: "long", year: "numeric" })}.`}
+          title={`Statement — ${selectedClient.companyName}`}
+          description={`For ${new Date().toLocaleString("en-US", { month: "long", year: "numeric" })}.`}
           footer={
             <>
               <Button variant="ghost" onClick={() => setShowStatementModal(false)}>
                 Close
               </Button>
               <Button variant="primary" iconLeft="print" onClick={() => window.print()}>
-                Print / Export PDF Statement
+                Print / save as PDF
               </Button>
             </>
           }
@@ -369,22 +377,22 @@ export const CorporateLedger: React.FC = () => {
             {/* Header Block */}
             <div className="p-4 rounded-xl bg-surface-sunken border border-border flex justify-between items-start">
               <div>
-                <span className="text-[10px] text-muted uppercase font-bold">CLIENT ACCOUNT</span>
+                <span className="text-[10px] text-muted uppercase font-bold">Account</span>
                 <div className="text-base font-bold text-foreground">{selectedClient.companyName}</div>
                 <div className="text-muted">{selectedClient.contactEmail}</div>
               </div>
               <div className="text-right">
-                <span className="text-[10px] text-muted uppercase font-bold">TOTAL OUTSTANDING</span>
+                <span className="text-[10px] text-muted uppercase font-bold">Owed now</span>
                 <div className="text-xl font-black font-mono text-foreground">
                   {formatCurrency(selectedClient.currentBalance)}
                 </div>
-                <Badge tone="warning" size="sm">Terms: Net {selectedClient.paymentTermsDays}d</Badge>
+                <Badge tone="warning" size="sm">Pays within {selectedClient.paymentTermsDays} days</Badge>
               </div>
             </div>
 
             {/* Sample Statement Line Items */}
             <div className="space-y-2">
-              <span className="font-bold text-foreground">Recent Waybill Debits on this Account:</span>
+              <span className="font-bold text-foreground">Shipments charged to this account:</span>
               <div className="divide-y divide-border-subtle border border-border rounded-lg overflow-hidden">
                 {[
                   { awb: "LOS-2026-000492", route: "LOS ➔ ABV", weight: "45.0 kg", date: "02 Sep 2026", amt: 42500 },

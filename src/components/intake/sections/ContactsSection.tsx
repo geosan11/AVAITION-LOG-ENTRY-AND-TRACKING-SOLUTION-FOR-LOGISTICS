@@ -2,6 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/TextField";
 import { Icon } from "@/components/ui/Icon";
+import { InfoHint } from "@/components/ui/InfoHint";
 import { IntakeValidationErrors } from "@/lib/validation/intake";
 
 export interface ContactsSectionProps {
@@ -34,13 +35,14 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
       header={
         <span className="text-sm font-bold text-foreground flex items-center gap-2">
           <Icon name="contacts" size={15} className="text-accent-amber" />
-          2. Shipper & Consignee Manifest Details
+          2. Sender &amp; recipient
+          <InfoHint term="recipient" label="Who is the recipient?" />
         </span>
       }
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <TextField
-          label="Shipper Full Name / Entity"
+          label="Sender's name"
           value={senderName}
           onChange={(e) => setSenderName(e.target.value)}
           onBlur={() => onBlurField("senderName")}
@@ -50,7 +52,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
         />
 
         <TextField
-          label="Shipper Mobile Phone"
+          label="Sender's phone"
           value={senderPhone}
           onChange={(e) => setSenderPhone(e.target.value)}
           onBlur={() => onBlurField("senderPhone")}
@@ -58,11 +60,11 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
           iconLeft="call"
           mono
           error={errors.senderPhone}
-          hint="Automated departure SMS will be sent"
+          hint="We'll text them when it ships"
         />
 
         <TextField
-          label="Consignee Full Name"
+          label="Recipient's name"
           value={consigneeName}
           onChange={(e) => consigneeNameSet(e.target.value)}
           onBlur={() => onBlurField("consigneeName")}
@@ -72,7 +74,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
         />
 
         <TextField
-          label="Consignee Phone (for Pickup PIN)"
+          label="Recipient's phone"
           value={consigneePhone}
           onChange={(e) => setConsigneePhone(e.target.value)}
           onBlur={() => onBlurField("consigneePhone")}
@@ -80,7 +82,7 @@ export const ContactsSection: React.FC<ContactsSectionProps> = ({
           iconLeft="call"
           mono
           error={errors.consigneePhone}
-          hint="Pickup verification PIN will be dispatched here"
+          hint="We'll text the collection PIN here"
         />
       </div>
     </Card>

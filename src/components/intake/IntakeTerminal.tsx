@@ -243,18 +243,18 @@ export const IntakeTerminal: React.FC<IntakeTerminalProps> = ({
                 HUB: {stationCode}
               </span>
             </div>
-            <p className="text-xs text-muted">Aviation Cargo Rapid Intake & Dispatch Console</p>
+            <p className="text-xs text-muted">Take in a new shipment</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {isOnline ? (
             <Badge tone="success" dot icon="wifi" size="sm">
-              Live Cloud Connected
+              Online
             </Badge>
           ) : (
             <Badge tone="warning" dot icon="wifi_off" size="sm">
-              Offline Mode ({pendingSyncCount} in queue)
+              Offline — {pendingSyncCount} saved here
             </Badge>
           )}
         </div>
@@ -270,10 +270,10 @@ export const IntakeTerminal: React.FC<IntakeTerminalProps> = ({
               </div>
               <div>
                 <div className="text-sm font-bold text-foreground">
-                  Consignment Successfully Committed
+                  Shipment created
                 </div>
                 <div className="text-xs text-muted">
-                  Ready for thermal printing & tarmac cargo tagging.
+                  Ready to print and label.
                 </div>
               </div>
             </div>
@@ -283,7 +283,7 @@ export const IntakeTerminal: React.FC<IntakeTerminalProps> = ({
               iconLeft="arrow_back"
               onClick={() => setIssuedShipment(null)}
             >
-              Back to Desk Intake
+              New shipment
             </Button>
           </div>
 
@@ -405,8 +405,8 @@ export const IntakeTerminal: React.FC<IntakeTerminalProps> = ({
         <Modal
           isOpen={Boolean(inspectingShipment)}
           onClose={() => setInspectingShipment(null)}
-          title="Air Waybill Thermal Receipt Archive"
-          description="Historical consignment record loaded from terminal cache."
+          title="Saved receipt"
+          description="A shipment created earlier on this desk."
         >
           <ReceiptMockup
             shipment={inspectingShipment}

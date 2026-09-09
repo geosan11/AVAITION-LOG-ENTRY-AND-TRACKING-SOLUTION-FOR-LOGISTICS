@@ -32,10 +32,10 @@ export const ConsoleHeader: React.FC<ConsoleHeaderProps> = ({
           <Icon name="menu" size={18} />
         </button>
         <span className="font-mono-data-md text-mono-data-md text-on-surface font-semibold tracking-wide truncate hidden sm:block">
-          AEROLOGISTICS OPERATIONAL CONSOLE
+          AeroLogistics — Cargo desk
         </span>
         <span className="font-mono-data-md text-mono-data-md text-on-surface font-semibold tracking-wide sm:hidden">
-          AEROLOGISTICS
+          AeroLogistics
         </span>
       </div>
 
@@ -60,10 +60,14 @@ export const ConsoleHeader: React.FC<ConsoleHeaderProps> = ({
           </span>
         </div>
 
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-accent-amber">
-          <Icon name="sync" size={15} className={pendingSyncCount > 0 ? 'animate-spin' : ''} />
-          <span className="font-mono-data-sm text-mono-data-sm">{pendingSyncCount} Queued</span>
-        </div>
+        {pendingSyncCount > 0 && (
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-accent-amber">
+            <Icon name="sync" size={15} className="animate-spin" />
+            <span className="font-mono-data-sm text-mono-data-sm">
+              {pendingSyncCount} waiting to sync
+            </span>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 pl-1">
           <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center">

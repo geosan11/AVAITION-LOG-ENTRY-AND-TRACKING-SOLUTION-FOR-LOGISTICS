@@ -25,7 +25,7 @@ export const RecentAWBsSidebar: React.FC<RecentAWBsSidebarProps> = ({
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
             <Icon name="schedule" size={15} className="text-accent-amber" />
-            <span className="text-xs font-bold text-foreground">Recent Desk Waybills</span>
+            <span className="text-xs font-bold text-foreground">Recent shipments</span>
           </div>
           {onRefresh && (
             <button
@@ -46,7 +46,7 @@ export const RecentAWBsSidebar: React.FC<RecentAWBsSidebarProps> = ({
           <div className="w-8 h-8 rounded-full bg-surface-2 flex items-center justify-center text-muted">
             <Icon name="schedule" size={16} />
           </div>
-          <span>No waybills issued on this desk today yet.</span>
+          <span>No shipments yet today.</span>
         </div>
       ) : (
         <div className="flex flex-col divide-y divide-border-subtle -mx-1">

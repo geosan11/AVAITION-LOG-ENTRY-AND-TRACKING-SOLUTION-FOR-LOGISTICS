@@ -186,10 +186,10 @@ export const ReceiptMockup: React.FC<ReceiptMockupProps> = ({
       {/* Action Buttons (Hidden when printing) */}
       <div className="flex gap-2.5 w-full justify-center print:hidden">
         <Button variant="primary" iconLeft="print" onClick={handlePrint}>
-          Print Receipt (80mm)
+          Print receipt (80mm)
         </Button>
         <Button variant="secondary" iconLeft={copied ? "check" : "content_copy"} onClick={handleCopyAwb}>
-          {copied ? "Copied!" : "Copy AWB"}
+          {copied ? "Copied!" : "Copy tracking number"}
         </Button>
         {onClose && (
           <Button variant="ghost" onClick={onClose}>

@@ -1,14 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Button,
-  TextField,
-  Select,
-  Card,
-  Badge,
-  Modal,
-  Sheet,
-  Icon,
-} from '@/components/ui';
+import { Button, Card, Badge, Icon, InfoHint } from '@/components/ui';
 import { IntakeTerminal } from '@/components/intake/IntakeTerminal';
 import { OnboardingWizard, type OnboardingData } from '@/components/onboarding/OnboardingWizard';
 import { RateCardManager } from '@/components/admin/RateCardManager';
@@ -17,21 +8,24 @@ import { CorporateLedger } from '@/components/accounting/CorporateLedger';
 import { WeightAudit } from '@/components/operations/WeightAudit';
 import { FlightManifestBuilder } from '@/components/operations/manifest/FlightManifestBuilder';
 import { RampScanner } from '@/components/operations/RampScanner';
+import { StyleGuide } from '@/components/dev/StyleGuide';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Sidebar } from '@/components/shell/Sidebar';
 import { ConsoleHeader } from '@/components/shell/ConsoleHeader';
 import { TelemetryStrip } from '@/components/shell/TelemetryStrip';
 import { VIEW_META, type ViewId } from '@/components/shell/nav';
 import { useTheme } from '@/lib/useTheme';
-import { AIRPORT_HUBS, formatCurrency } from '@/lib/ui';
+import { formatCurrency } from '@/lib/ui';
 
 const SIDEBAR_KEY = 'aerolog-sidebar-collapsed';
+
+const SHOW_STYLE_GUIDE =
+  import.meta.env.DEV ||
+  (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('dev'));
 
 export function App() {
   const { isDark, toggle } = useTheme();
   const [currentView, setCurrentView] = useState<ViewId>('terminal');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
@@ -87,11 +81,7 @@ export function App() {
         />
 
         <main className="flex-1 w-full max-w-[1600px] mx-auto flex flex-col gap-6 pt-2">
-          <TelemetryStrip
-            title={meta.title}
-            subtitle={meta.subtitle}
-            breadcrumb={meta.breadcrumb}
-          />
+          <TelemetryStrip title={meta.title} subtitle={meta.subtitle} />
 
           <ErrorBoundary>
             {currentView === 'terminal' && (
@@ -127,7 +117,7 @@ export function App() {
             {currentView === 'onboarding' && (
               <div className="flex flex-col gap-4">
                 <div className="p-3 rounded-lg bg-accent-amber/10 border border-accent-amber/30 text-xs text-foreground">
-                  <strong>First-run experience:</strong> New tenants see this wizard before accessing the terminal. Complete all 4 steps to unlock the workspace.
+                  <strong>First-time setup.</strong> New companies see this before using the desk. Finish all 4 steps to unlock the workspace.
                 </div>
                 <OnboardingWizard onComplete={handleOnboardingComplete} />
               </div>
@@ -136,7 +126,7 @@ export function App() {
             {currentView === 'admin' && (
               <div className="flex flex-col gap-4">
                 <div className="p-3 rounded-lg bg-surface-2 border border-border text-xs text-muted">
-                  <strong className="text-foreground">Admin Panel — Rate Card Management.</strong> Station managers and above can add, edit, and deactivate freight rate cards. Changes take effect on the next waybill issued.
+                  <strong className="text-foreground">Pricing.</strong> Managers set the price per kg for each route. Changes apply to the next shipment created.
                 </div>
                 <RateCardManager />
               </div>
@@ -148,11 +138,12 @@ export function App() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                        <Icon name="auto_awesome" size={20} className="text-accent-amber" />
-                        SaaS Subscription Tiers & Paystack Lifecycle
+                        <Icon name="workspace_premium" size={20} className="text-accent-amber" />
+                        Plans &amp; billing
                       </h2>
-                      <p className="text-xs text-muted mt-1">
-                        Enforced by Postgres Row-Level Security (RLS) with 14-day free trial and 72-hour grace period.
+                      <p className="text-xs text-muted mt-1 flex items-center gap-1.5">
+                        14-day free trial. If a renewal payment fails you have 72 hours to fix it before access pauses.
+                        <InfoHint term="gracePeriod" />
                       </p>
                     </div>
 
@@ -165,7 +156,7 @@ export function App() {
                             : 'text-muted hover:text-foreground'
                         }`}
                       >
-                        Monthly Billing
+                        Pay monthly
                       </button>
                       <button
                         onClick={() => setBillingCycle('annual')}
@@ -175,7 +166,7 @@ export function App() {
                             : 'text-muted hover:text-foreground'
                         }`}
                       >
-                        Annual Billing <span className="text-accent-amber text-[10px] font-bold ml-1">(2 Mo Free)</span>
+                        Pay yearly <span className="text-accent-amber text-[10px] font-bold ml-1">(2 months free)</span>
                       </button>
                     </div>
                   </div>
@@ -186,14 +177,14 @@ export function App() {
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-2">
                             <Icon name="apartment" size={16} className="text-muted" />
-                            <span className="font-bold text-sm">Starter Plan</span>
+                            <span className="font-bold text-sm">Starter</span>
                           </div>
-                          <Badge tone="neutral">Single Station</Badge>
+                          <Badge tone="neutral">One location</Badge>
                         </div>
                       }
                       footer={
                         <Button variant="secondary" fullWidth>
-                          Start 14-Day Trial
+                          Start 14-day trial
                         </Button>
                       }
                     >
@@ -206,30 +197,30 @@ export function App() {
                             </span>
                           </div>
                           <p className="text-xs text-muted mt-1">
-                            Perfect for single-counter airport cargo desks.
+                            For a single-counter airport cargo desk.
                           </p>
                         </div>
 
                         <ul className="text-xs text-text-secondary flex flex-col gap-2.5">
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>1 Airport Cargo Station / Hub</span>
+                            <span>1 airport location</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Up to 3 Staff Accounts</span>
+                            <span>Up to 3 staff logins</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Up to 500 Waybills / month</span>
+                            <span>Up to 500 shipments / month</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>58mm / 80mm ESC/POS Thermal Printing</span>
+                            <span>Receipt printer support</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-accent-amber shrink-0" />
-                            <span className="text-muted">Logo on receipts (with "Powered by" footer)</span>
+                            <span className="text-muted">Your logo on receipts (with a "Powered by" line)</span>
                           </li>
                         </ul>
                       </div>
@@ -242,16 +233,16 @@ export function App() {
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-2">
                             <Icon name="flight" size={16} className="text-accent-amber" />
-                            <span className="font-bold text-sm text-foreground">Growth Plan</span>
+                            <span className="font-bold text-sm text-foreground">Growth</span>
                           </div>
                           <Badge tone="amber" dot>
-                            Most Popular
+                            Most popular
                           </Badge>
                         </div>
                       }
                       footer={
                         <Button variant="primary" fullWidth>
-                          Subscribe to Growth
+                          Choose Growth
                         </Button>
                       }
                     >
@@ -264,34 +255,34 @@ export function App() {
                             </span>
                           </div>
                           <p className="text-xs text-muted mt-1">
-                            For scaling domestic air cargo forwarders.
+                            For a growing domestic air cargo business.
                           </p>
                         </div>
 
                         <ul className="text-xs text-text-secondary flex flex-col gap-2.5">
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Up to 5 Airport Cargo Hubs</span>
+                            <span>Up to 5 airport locations</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Up to 15 Staff Accounts (Ramp, Cashiers)</span>
+                            <span>Up to 15 staff logins</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Up to 3,000 Waybills / month</span>
+                            <span>Up to 3,000 shipments / month</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Flight Manifest Builder & QR Scanner</span>
+                            <span>Flight loading + barcode scanning</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span className="font-semibold text-foreground">100% White-Label (No Watermarks)</span>
+                            <span className="font-semibold text-foreground">Your branding, no watermarks</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Custom Termii SMS Sender ID</span>
+                            <span>Send SMS from your own name</span>
                           </li>
                         </ul>
                       </div>
@@ -302,14 +293,14 @@ export function App() {
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-2">
                             <Icon name="verified_user" size={16} className="text-accent-cobalt" />
-                            <span className="font-bold text-sm">Enterprise Tier</span>
+                            <span className="font-bold text-sm">Enterprise</span>
                           </div>
-                          <Badge tone="info">Airlines & Multi-Hub</Badge>
+                          <Badge tone="info">Airlines &amp; multi-location</Badge>
                         </div>
                       }
                       footer={
                         <Button variant="subtle" fullWidth>
-                          Contact Sales / Invoicing
+                          Contact sales
                         </Button>
                       }
                     >
@@ -322,30 +313,30 @@ export function App() {
                             </span>
                           </div>
                           <p className="text-xs text-muted mt-1">
-                            Multi-station airline cargo & regional carriers.
+                            For airline cargo and regional carriers.
                           </p>
                         </div>
 
                         <ul className="text-xs text-text-secondary flex flex-col gap-2.5">
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Unlimited Airport Hubs & Stations</span>
+                            <span>Unlimited airport locations</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Unlimited Staff & Custom Roles</span>
+                            <span>Unlimited staff &amp; custom roles</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Unlimited Waybills & Manifests</span>
+                            <span>Unlimited shipments &amp; flights</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>Custom Domain & Dedicated SLA</span>
+                            <span>Your own web address + priority support</span>
                           </li>
                           <li className="flex items-center gap-2">
                             <Icon name="check_circle" size={14} className="text-success shrink-0" />
-                            <span>WhatsApp + SMS Multi-Channel Gateway</span>
+                            <span>WhatsApp and SMS notifications</span>
                           </li>
                         </ul>
                       </div>
@@ -353,151 +344,12 @@ export function App() {
                   </div>
                 </section>
 
-                <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card
-                    header={
-                      <div className="flex items-center justify-between w-full">
-                        <span className="font-bold text-sm">7 Semantic Status Tint Sets</span>
-                        <Badge tone="info">WCAG AA Contrast</Badge>
-                      </div>
-                    }
-                  >
-                    <div className="flex flex-col gap-4">
-                      <p className="text-xs text-muted">
-                        Each status tone guarantees high-contrast readability in both Light and Dark themes without hardcoded hexes.
-                      </p>
-                      <div className="flex flex-wrap gap-2.5">
-                        <Badge tone="success" dot>Delivered / Active</Badge>
-                        <Badge tone="amber" dot>Manifested / Review</Badge>
-                        <Badge tone="info" dot>In-Transit / Airborne</Badge>
-                        <Badge tone="warning" dot>Past-Due Grace</Badge>
-                        <Badge tone="error" dot>Suspended / Cancelled</Badge>
-                        <Badge tone="purple" dot>Excess Baggage</Badge>
-                        <Badge tone="neutral">Draft Waybill</Badge>
-                      </div>
-                    </div>
-                  </Card>
-
-                  <Card
-                    header={
-                      <div className="flex items-center justify-between w-full">
-                        <span className="font-bold text-sm">Button Primitive System</span>
-                        <Badge tone="amber">5 Variants</Badge>
-                      </div>
-                    }
-                  >
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-wrap gap-2.5">
-                        <Button variant="primary" iconLeft="credit_card">Primary Action</Button>
-                        <Button variant="secondary" iconLeft="description">Secondary</Button>
-                        <Button variant="destructive">Destructive</Button>
-                        <Button variant="subtle">Subtle</Button>
-                        <Button variant="ghost">Ghost</Button>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        <Button variant="primary" size="sm">Small</Button>
-                        <Button variant="primary" size="md">Medium</Button>
-                        <Button variant="primary" size="lg">Large</Button>
-                        <Button variant="primary" loading loadingLabel="Processing...">Loading</Button>
-                        <Button variant="secondary" disabled>Disabled</Button>
-                      </div>
-                    </div>
-                  </Card>
-                </section>
-
-                <Card
-                  header={
-                    <div className="flex items-center justify-between w-full">
-                      <span className="font-bold text-sm">Form Controls & Station Selectors</span>
-                      <div className="flex items-center gap-2">
-                        <Button size="sm" variant="subtle" iconLeft="qr_code_2" onClick={() => setSheetOpen(true)}>
-                          Open Mobile Sheet
-                        </Button>
-                      </div>
-                    </div>
-                  }
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <TextField
-                      label="Sender Full Name"
-                      placeholder="e.g. Aliko Dangote"
-                      hint="Required"
-                    />
-                    <Select
-                      label="Origin Flight Hub"
-                      options={AIRPORT_HUBS.map(h => ({
-                        value: h.code,
-                        label: `${h.code} — ${h.name} (${h.city})`,
-                      }))}
-                    />
-                    <TextField
-                      label="Air Waybill (AWB) Prefix"
-                      defaultValue="LOS-2026-00492"
-                      mono
-                      hint="Auto-generated"
-                    />
-                  </div>
-                </Card>
+                {SHOW_STYLE_GUIDE && <StyleGuide />}
               </div>
             )}
           </ErrorBoundary>
         </main>
       </div>
-
-      <Modal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Quick Intake & AWB Generation"
-        description="Rapid 1-screen cargo desk entry with sequential tag generator."
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" iconLeft="package_2" onClick={() => setModalOpen(false)}>
-              Issue Waybill & Print
-            </Button>
-          </>
-        }
-      >
-        <div className="flex flex-col gap-4">
-          <TextField label="Consignee Phone" placeholder="080 1234 5678" mono />
-          <div className="grid grid-cols-2 gap-3">
-            <TextField label="Weight (Kg)" placeholder="15.5" type="number" mono />
-            <TextField label="Total Pieces" placeholder="2" type="number" mono />
-          </div>
-          <Select
-            label="Destination Airport"
-            options={AIRPORT_HUBS.map(h => ({
-              value: h.code,
-              label: `${h.code} — ${h.city}`,
-            }))}
-          />
-        </div>
-      </Modal>
-
-      <Sheet
-        isOpen={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        title="Mobile Ramp Scanner & Cargo Validation"
-        side="bottom"
-      >
-        <div className="flex flex-col gap-4 text-sm text-text-secondary">
-          <p>
-            This bottom sheet drawer provides a touch-first interface on mobile devices for ramp agents scanning barcodes on the tarmac or counter.
-          </p>
-          <div className="p-4 rounded-xl bg-surface-sunken border border-border flex items-center justify-between">
-            <div>
-              <div className="font-mono font-bold text-foreground">AWB: LOS-ABV-88392</div>
-              <div className="text-xs text-muted">Flight: N2-402 | Dest: ABV (Abuja)</div>
-            </div>
-            <Badge tone="success" dot>Screened OK</Badge>
-          </div>
-          <Button variant="primary" fullWidth onClick={() => setSheetOpen(false)}>
-            Confirm Manifest Load
-          </Button>
-        </div>
-      </Sheet>
     </div>
   );
 }

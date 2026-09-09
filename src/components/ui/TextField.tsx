@@ -3,7 +3,7 @@ import { Icon } from './Icon';
 import { ICON } from '@/lib/ui';
 
 export interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
+  label?: React.ReactNode;
   hint?: string;
   error?: string;
   /** Material Symbols glyph name. */

@@ -6,16 +6,18 @@ import { Select } from "@/components/ui/Select";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { Icon } from "@/components/ui/Icon";
+import { Disclosure } from "@/components/ui/Disclosure";
+import { InfoHint } from "@/components/ui/InfoHint";
 import { formatCurrency, AIRPORT_HUBS } from "@/lib/ui";
 import { useManifestBuilder } from "./useManifestBuilder";
 import { useAwbScannerKeyboard } from "@/lib/useAwbScanner";
 
 const STATUS_CFG: Record<string, { label: string; tone: any; icon: string }> = {
-  open:     { label: "Open — Accepting Cargo",       tone: "success", icon: "inventory_2"    },
-  locked:   { label: "Locked — Sealed for Dispatch", tone: "amber",   icon: "lock"          },
-  airborne: { label: "Airborne — In Flight",         tone: "info",    icon: "flight_takeoff" },
-  landed:   { label: "Landed — Cargo Available",     tone: "purple",  icon: "flight_land"   },
-  closed:   { label: "Closed / Archived",            tone: "neutral", icon: "check_circle"  },
+  open:     { label: "Open — adding shipments", tone: "success", icon: "inventory_2"     },
+  locked:   { label: "Locked — ready to fly",  tone: "amber",   icon: "lock"            },
+  airborne: { label: "In the air",             tone: "info",    icon: "flight_takeoff"  },
+  landed:   { label: "Landed",                 tone: "purple",  icon: "flight_land"     },
+  closed:   { label: "Closed",                 tone: "neutral", icon: "check_circle"    },
 };
 
 const AIRCRAFT_OPTIONS = [
@@ -72,7 +74,7 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
     if (!value) return;
     setAdding(true); setScanFeedback(null);
     const result = await addAwbToManifest(value);
-    setScanFeedback({ ok: result.success, msg: result.success ? `\u2713 ${value} added to manifest` : (result.error ?? "Unknown error") });
+    setScanFeedback({ ok: result.success, msg: result.success ? `✓ ${value} added` : (result.error ?? "Something went wrong") });
     if (result.success) setAwbInput("");
     setAdding(false);
     setTimeout(() => setScanFeedback(null), 3000);
@@ -88,12 +90,12 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
   const handleDispatch = async () => {
     setDispatching(true);
     const result = await dispatchManifest();
-    setDispatchResult(`Flight ${manifest?.flight_number} dispatched. ${result.dispatchedCount} AWBs marked DEPARTED.`);
+    setDispatchResult(`Flight ${manifest?.flight_number} sent off. ${result.dispatchedCount} shipments marked as departed.`);
     setDispatching(false);
   };
 
   const barColor = utilizationPct >= 100 ? "bg-error" : utilizationPct >= 85 ? "bg-accent-amber" : "bg-success";
-  const hubOptions = AIRPORT_HUBS.map((h) => ({ value: h.code, label: `${h.code} \u2014 ${h.city}` }));
+  const hubOptions = AIRPORT_HUBS.map((h) => ({ value: h.code, label: `${h.code} — ${h.city}` }));
   const statusCfg = manifest ? STATUS_CFG[manifest.status] : null;
 
   return (
@@ -101,13 +103,13 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-            <Icon name="flight_takeoff" size={20} className="text-accent-amber" /> Flight Manifest Builder
+            <Icon name="flight_takeoff" size={20} className="text-accent-amber" /> Flights &amp; loading
           </h2>
-          <p className="text-xs text-muted mt-0.5">Batch cargo AWBs onto scheduled departures. Lock and dispatch to bulk-update shipment statuses.</p>
+          <p className="text-xs text-muted mt-0.5">Add shipments to a flight, then lock it and send it off.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="secondary" size="sm" iconLeft="list_alt" onClick={() => setShowList(true)}>All Manifests ({manifests.length})</Button>
-          <Button variant="primary" size="sm" iconLeft="add" onClick={() => setShowCreate(true)}>New Manifest</Button>
+          <Button variant="secondary" size="sm" iconLeft="list_alt" onClick={() => setShowList(true)}>All flights ({manifests.length})</Button>
+          <Button variant="primary" size="sm" iconLeft="add" onClick={() => setShowCreate(true)}>New flight</Button>
         </div>
       </div>
 
@@ -124,11 +126,12 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
                   </div>
                   <div>
                     <div className="font-mono font-black text-lg text-foreground tracking-wide">
-                      {manifest.origin_hub_id}<span className="text-accent-amber mx-2">\u2192</span>{manifest.destination_hub_id}
+                      {manifest.origin_hub_id}<span className="text-accent-amber mx-2">→</span>{manifest.destination_hub_id}
                     </div>
                     <div className="text-xs text-muted">
-                      <span className="font-semibold text-foreground">{manifest.flight_number}</span>{" \u00b7 "}
-                      {manifest.departure_date} at {manifest.departure_time}{" \u00b7 "}{manifest.aircraft_type}
+                      <span className="font-semibold text-foreground">{manifest.flight_number}</span>
+                      {" · "}{manifest.departure_date} at {manifest.departure_time}
+                      {" · "}{manifest.aircraft_type}
                     </div>
                     <div className="text-[11px] text-muted font-mono mt-0.5">{manifest.manifest_number}</div>
                   </div>
@@ -137,43 +140,44 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
               </div>
               <div className="mt-4 pt-4 border-t border-border-subtle space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted font-semibold">Aircraft Payload Utilization</span>
+                  <span className="text-muted font-semibold flex items-center gap-1">
+                    Weight used <InfoHint term="payloadCapacity" size={12} />
+                  </span>
                   <span className={`font-mono font-bold ${isOverloaded ? "text-error" : "text-foreground"}`}>
                     {totalWeightKg.toFixed(1)} / {manifest.payload_capacity_kg.toLocaleString()} kg ({utilizationPct}%)
-                    {isOverloaded && " \u2014 OVERLOADED \u26a0\ufe0f"}
+                    {isOverloaded && " — over the limit"}
                   </span>
                 </div>
                 <div className="w-full bg-surface-sunken h-3 rounded-full overflow-hidden border border-border-subtle">
                   <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${Math.min(100, utilizationPct)}%` }} />
                 </div>
-                <div className="flex gap-6 text-[11px] text-muted">
-                  <span><strong className="text-foreground font-mono">{manifest.items.length}</strong> AWBs</span>
-                  <span><strong className="text-foreground font-mono">{totalPieces}</strong> Pieces</span>
-                  <span><strong className="text-foreground font-mono">{totalWeightKg.toFixed(1)} kg</strong> Gross</span>
-                  <span>{(manifest.payload_capacity_kg - totalWeightKg).toFixed(1)} kg remaining</span>
+                <div className="text-[11px] text-muted">
+                  <strong className="text-foreground font-mono">{manifest.items.length}</strong> shipments
+                  {" · "}<strong className="text-foreground font-mono">{totalPieces}</strong> items
+                  {" · "}<strong className="text-foreground font-mono">{(manifest.payload_capacity_kg - totalWeightKg).toFixed(1)} kg</strong> left
                 </div>
               </div>
             </Card>
 
-            {/* AWB entry */}
+            {/* Add shipment */}
             {manifest.status === "open" && (
               <Card header={
                 <div className="flex items-center justify-between w-full">
-                  <span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="barcode_scanner" size={15} className="text-accent-amber" />Add Cargo AWB to Manifest</span>
+                  <span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="barcode_scanner" size={15} className="text-accent-amber" />Add a shipment</span>
                   <button type="button" onClick={toggleScanning}
                     className={`text-xs font-semibold px-2.5 py-1 rounded-md border transition-all cursor-pointer ${scanning ? "bg-accent-amber text-on-accent border-accent-amber" : "text-muted border-border hover:text-foreground"}`}>
-                    {scanning ? "\uD83D\uDFE2 Scanner ACTIVE" : "Enable Barcode Scanner"}
+                    {scanning ? "● Scanner on" : "Use a scanner"}
                   </button>
                 </div>
               }>
                 <div className="flex gap-2 items-end">
                   <div className="flex-1">
-                    <TextField label="Air Waybill Number" placeholder="e.g. LOS-2026-000492  \u00b7  or scan barcode"
+                    <TextField label="Tracking number" placeholder="e.g. LOS-2026-000492"
                       value={awbInput} onChange={(e) => setAwbInput(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleAddAwb()}
                       iconLeft={scanning ? "barcode_scanner" : "search"} mono />
                   </div>
-                  <Button variant="primary" size="md" iconLeft="add" loading={adding} loadingLabel="Adding..." onClick={() => handleAddAwb()} className="shrink-0">Add AWB</Button>
+                  <Button variant="primary" size="md" iconLeft="add" loading={adding} loadingLabel="Adding…" onClick={() => handleAddAwb()} className="shrink-0">Add</Button>
                 </div>
                 {scanFeedback && (
                   <div className={`mt-3 p-2.5 rounded-lg border text-xs font-medium flex items-center gap-2 ${scanFeedback.ok ? "bg-success-bg border-success-border text-success-fg" : "bg-error-bg border-error-border text-error-fg"}`}>
@@ -184,25 +188,25 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
                 {scanning && (
                   <div className="mt-3 p-3 rounded-lg bg-accent-amber/10 border border-accent-amber/30 text-[11px] text-foreground flex items-center gap-2">
                     <Icon name="barcode_scanner" size={14} className="text-accent-amber shrink-0" />
-                    Barcode scanner active. Point USB/Bluetooth scanner at any cargo label to capture automatically.
+                    Scanner on. Point it at a shipment barcode.
                   </div>
                 )}
               </Card>
             )}
 
-            {/* Cargo table */}
+            {/* Shipments table */}
             <Card header={
               <div className="flex items-center justify-between w-full">
-                <span className="text-sm font-bold text-foreground">Cargo Manifest \u2014 {manifest.items.length} Consignment{manifest.items.length !== 1 ? "s" : ""}</span>
-                {manifest.items.length > 0 && <Button variant="secondary" size="sm" iconLeft="print" onClick={() => window.print()}>Print Manifest</Button>}
+                <span className="text-sm font-bold text-foreground">Shipments on this flight — {manifest.items.length}</span>
+                {manifest.items.length > 0 && <Button variant="secondary" size="sm" iconLeft="print" onClick={() => window.print()}>Print list</Button>}
               </div>
             }>
               {manifest.items.length === 0 ? (
                 <div className="py-14 text-center flex flex-col items-center gap-3 text-muted">
                   <div className="w-14 h-14 rounded-2xl bg-surface-2 border border-border flex items-center justify-center"><Icon name="inventory_2" size={24} className="text-muted" /></div>
                   <div>
-                    <div className="font-semibold text-foreground text-sm">No cargo added yet</div>
-                    <div className="text-xs text-muted mt-1">{manifest.status === "open" ? "Type or scan an AWB to begin building the manifest." : "This manifest has been locked or dispatched."}</div>
+                    <div className="font-semibold text-foreground text-sm">No shipments yet</div>
+                    <div className="text-xs text-muted mt-1">{manifest.status === "open" ? "Type or scan a tracking number to add one." : "This flight is locked."}</div>
                   </div>
                 </div>
               ) : (
@@ -211,10 +215,10 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
                     <thead>
                       <tr className="border-b border-border text-muted font-semibold">
                         <th className="text-left py-2.5 px-3">#</th>
-                        <th className="text-left py-2.5 px-3">Air Waybill</th>
-                        <th className="text-left py-2.5 px-3">Consignee</th>
+                        <th className="text-left py-2.5 px-3">Tracking number</th>
+                        <th className="text-left py-2.5 px-3">Recipient</th>
                         <th className="text-left py-2.5 px-3">Contents</th>
-                        <th className="text-right py-2.5 px-3">Pcs</th>
+                        <th className="text-right py-2.5 px-3">Items</th>
                         <th className="text-right py-2.5 px-3">Weight</th>
                         <th className="text-center py-2.5 px-3">Status</th>
                         {manifest.status === "open" && <th className="py-2.5 px-3" />}
@@ -225,7 +229,7 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
                         <tr key={item.shipment.id} className="hover:bg-surface-hover transition-colors group">
                           <td className="py-2.5 px-3 text-muted font-mono">{idx + 1}</td>
                           <td className="py-2.5 px-3 font-mono font-bold text-foreground whitespace-nowrap">
-                            {item.shipment.awb_number.startsWith("PENDING-") ? <span className="text-amber-600 text-[10px]">PENDING SYNC</span> : item.shipment.awb_number}
+                            {item.shipment.awb_number.startsWith("PENDING-") ? <span className="text-amber-600 text-[10px]">not synced yet</span> : item.shipment.awb_number}
                           </td>
                           <td className="py-2.5 px-3">
                             <div className="font-medium text-foreground truncate max-w-[140px]">{item.shipment.consignee_name}</div>
@@ -242,7 +246,7 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
                           {manifest.status === "open" && (
                             <td className="py-2.5 px-3 text-right">
                               <button type="button" onClick={() => removeAwbFromManifest(item.shipment.id)}
-                                className="opacity-0 group-hover:opacity-100 text-error hover:text-error-fg transition-all cursor-pointer p-1 rounded" title="Remove from manifest">
+                                className="opacity-0 group-hover:opacity-100 text-error hover:text-error-fg transition-all cursor-pointer p-1 rounded" title="Remove from flight">
                                 <Icon name="delete" size={14} />
                               </button>
                             </td>
@@ -252,7 +256,7 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
                     </tbody>
                     <tfoot>
                       <tr className="border-t-2 border-border bg-surface-sunken font-bold text-xs">
-                        <td colSpan={4} className="py-2.5 px-3 text-muted text-right">TOTALS:</td>
+                        <td colSpan={4} className="py-2.5 px-3 text-muted text-right">Total</td>
                         <td className="py-2.5 px-3 text-right font-mono text-foreground">{totalPieces}</td>
                         <td className="py-2.5 px-3 text-right font-mono text-foreground">{totalWeightKg.toFixed(1)} kg</td>
                         <td colSpan={manifest.status === "open" ? 2 : 1} />
@@ -267,50 +271,50 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
           {/* Right: Controls */}
           <div className="lg:col-span-4 flex flex-col gap-5">
             <Card className="border-accent-amber/30 ring-1 ring-accent-amber/10"
-              header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="send" size={15} className="text-accent-amber" />Manifest Operations</span>}>
+              header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="send" size={15} className="text-accent-amber" />Next steps</span>}>
               <div className="flex flex-col gap-3">
                 {manifest.status === "open" && (
                   <>
                     <div className="text-xs text-muted p-2.5 rounded-lg bg-surface-sunken border border-border-subtle">
-                      Add all cargo, <strong className="text-foreground">Lock</strong> the manifest, then <strong className="text-foreground">Dispatch</strong> to mark the flight airborne.
+                      Add all shipments, <strong className="text-foreground">lock</strong> the flight, then <strong className="text-foreground">send it off</strong>.
                     </div>
-                    <Button variant="secondary" fullWidth iconLeft="lock" onClick={lockManifest} disabled={manifest.items.length === 0}>Lock Manifest ({manifest.items.length} AWBs)</Button>
-                    <Button variant="primary" fullWidth iconLeft="flight_takeoff" disabled={manifest.items.length === 0} onClick={() => setShowDispatch(true)}>Dispatch Flight \u2192</Button>
+                    <Button variant="secondary" fullWidth iconLeft="lock" onClick={lockManifest} disabled={manifest.items.length === 0}>Lock flight ({manifest.items.length} shipments)</Button>
+                    <Button variant="primary" fullWidth iconLeft="flight_takeoff" disabled={manifest.items.length === 0} onClick={() => setShowDispatch(true)}>Send flight off →</Button>
                   </>
                 )}
                 {manifest.status === "locked" && (
                   <>
                     <div className="p-3 rounded-lg bg-accent-amber/10 border border-accent-amber/30 text-xs text-foreground flex items-center gap-2">
-                      <Icon name="lock" size={14} className="text-accent-amber shrink-0" />Manifest sealed. Ready to dispatch.
+                      <Icon name="lock" size={14} className="text-accent-amber shrink-0" />Flight locked. Ready to send.
                     </div>
-                    <Button variant="primary" fullWidth iconLeft="flight_takeoff" onClick={() => setShowDispatch(true)}>Dispatch Flight \u2192</Button>
+                    <Button variant="primary" fullWidth iconLeft="flight_takeoff" onClick={() => setShowDispatch(true)}>Send flight off →</Button>
                   </>
                 )}
                 {manifest.status === "airborne" && (
                   <>
                     <div className="p-3 rounded-lg bg-info-bg border border-info-border text-xs text-info-fg flex items-center gap-2">
-                      <Icon name="flight_takeoff" size={14} className="shrink-0" />Flight {manifest.flight_number} airborne with {manifest.items.length} consignments.
+                      <Icon name="flight_takeoff" size={14} className="shrink-0" />Flight {manifest.flight_number} is in the air with {manifest.items.length} shipments.
                     </div>
-                    <Button variant="primary" fullWidth iconLeft="flight_land" onClick={landManifest}>Confirm Landing (Arrived)</Button>
+                    <Button variant="primary" fullWidth iconLeft="flight_land" onClick={landManifest}>Mark as landed</Button>
                   </>
                 )}
                 {(manifest.status === "landed" || manifest.status === "closed") && (
                   <div className="p-3 rounded-lg bg-success-bg border border-success-border text-xs text-success-fg flex items-center gap-2">
-                    <Icon name="check_circle" size={14} className="shrink-0" />Flight landed. All {manifest.items.length} shipments marked ARRIVED at {manifest.destination_hub_id}.
+                    <Icon name="check_circle" size={14} className="shrink-0" />Flight landed. All {manifest.items.length} shipments are now at {manifest.destination_hub_id}.
                   </div>
                 )}
               </div>
             </Card>
 
-            <Card header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="scale" size={15} className="text-accent-amber" />Load Summary</span>}>
+            <Card header={<span className="text-sm font-bold text-foreground flex items-center gap-2"><Icon name="scale" size={15} className="text-accent-amber" />Summary</span>}>
               <div className="space-y-2.5">
                 {[
-                  { label: "Aircraft",         value: manifest.aircraft_type },
-                  { label: "Max Payload",       value: `${manifest.payload_capacity_kg.toLocaleString()} kg` },
-                  { label: "Total AWBs",        value: `${manifest.items.length}` },
-                  { label: "Total Pieces",      value: `${totalPieces}` },
-                  { label: "Gross Weight",      value: `${totalWeightKg.toFixed(1)} kg` },
-                  { label: "Remaining Payload", value: `${(manifest.payload_capacity_kg - totalWeightKg).toFixed(1)} kg` },
+                  { label: "Aircraft",     value: manifest.aircraft_type },
+                  { label: "Weight limit", value: `${manifest.payload_capacity_kg.toLocaleString()} kg` },
+                  { label: "Shipments",    value: `${manifest.items.length}` },
+                  { label: "Items",        value: `${totalPieces}` },
+                  { label: "Total weight", value: `${totalWeightKg.toFixed(1)} kg` },
+                  { label: "Weight left",  value: `${(manifest.payload_capacity_kg - totalWeightKg).toFixed(1)} kg` },
                 ].map((row) => (
                   <div key={row.label} className="flex justify-between items-center text-xs border-b border-border-subtle pb-2 last:border-0 last:pb-0">
                     <span className="text-muted">{row.label}</span>
@@ -319,78 +323,78 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
                 ))}
                 {isOverloaded && (
                   <div className="p-2.5 rounded-lg bg-error-bg border border-error-border text-error-fg text-xs flex items-center gap-2">
-                    <Icon name="warning" size={14} className="shrink-0" />Overloaded by {(totalWeightKg - manifest.payload_capacity_kg).toFixed(1)} kg.
+                    <Icon name="warning" size={14} className="shrink-0" />Over the weight limit by {(totalWeightKg - manifest.payload_capacity_kg).toFixed(1)} kg.
                   </div>
                 )}
               </div>
             </Card>
 
             {manifest.items.length > 0 && (
-              <Card header={<span className="text-sm font-bold text-foreground">Financial Summary</span>}>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between"><span className="text-muted">Total Revenue:</span><span className="font-mono font-bold text-foreground">{formatCurrency(manifest.items.reduce((s, i) => s + i.shipment.amount_total, 0))}</span></div>
-                  <div className="flex justify-between"><span className="text-muted">Collected:</span><span className="font-mono font-bold text-success">{formatCurrency(manifest.items.reduce((s, i) => s + i.shipment.amount_paid, 0))}</span></div>
-                  <div className="flex justify-between border-t border-border-subtle pt-2"><span className="text-muted font-semibold">Outstanding Debt:</span><span className="font-mono font-bold text-error">{formatCurrency(manifest.items.reduce((s, i) => s + i.shipment.balance_due, 0))}</span></div>
+              <Disclosure label="Money" persistKey="manifest-money">
+                <div className="space-y-2 text-xs pt-2">
+                  <div className="flex justify-between"><span className="text-muted">Total price</span><span className="font-mono font-bold text-foreground">{formatCurrency(manifest.items.reduce((s, i) => s + i.shipment.amount_total, 0))}</span></div>
+                  <div className="flex justify-between"><span className="text-muted">Paid</span><span className="font-mono font-bold text-success">{formatCurrency(manifest.items.reduce((s, i) => s + i.shipment.amount_paid, 0))}</span></div>
+                  <div className="flex justify-between border-t border-border-subtle pt-2"><span className="text-muted font-semibold">Still owed</span><span className="font-mono font-bold text-error">{formatCurrency(manifest.items.reduce((s, i) => s + i.shipment.balance_due, 0))}</span></div>
                 </div>
-              </Card>
+              </Disclosure>
             )}
           </div>
         </div>
       ) : (
         <div className="py-20 text-center text-muted flex flex-col items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-surface-2 border border-border flex items-center justify-center"><Icon name="flight" size={28} className="text-muted" /></div>
-          <div><div className="font-bold text-foreground">No manifest selected</div><div className="text-xs text-muted mt-1">Create a new flight manifest to start batching cargo.</div></div>
-          <Button variant="primary" iconLeft="add" onClick={() => setShowCreate(true)}>Create First Manifest</Button>
+          <div><div className="font-bold text-foreground">No flight selected</div><div className="text-xs text-muted mt-1">Create a flight to start adding shipments.</div></div>
+          <Button variant="primary" iconLeft="add" onClick={() => setShowCreate(true)}>Create a flight</Button>
         </div>
       )}
 
-      {/* Create Manifest Modal */}
-      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Create New Flight Manifest" description="Set the flight routing, schedule, and aircraft payload capacity."
-        footer={<><Button variant="ghost" onClick={() => setShowCreate(false)}>Cancel</Button><Button variant="primary" iconLeft="flight" onClick={handleCreateManifest}>Create Manifest</Button></>}>
+      {/* Create flight modal */}
+      <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="New flight" description="Set the route, time, and aircraft."
+        footer={<><Button variant="ghost" onClick={() => setShowCreate(false)}>Cancel</Button><Button variant="primary" iconLeft="flight" onClick={handleCreateManifest}>Create flight</Button></>}>
         <div className="flex flex-col gap-4 text-xs">
           <div className="grid grid-cols-2 gap-3">
-            <Select label="Origin Station" value={newOrigin} onChange={(e) => setNewOrigin(e.target.value)} options={hubOptions} />
-            <Select label="Destination Station" value={newDest} onChange={(e) => setNewDest(e.target.value)} options={hubOptions.filter((h) => h.value !== newOrigin)} />
+            <Select label="From" value={newOrigin} onChange={(e) => setNewOrigin(e.target.value)} options={hubOptions} />
+            <Select label="To" value={newDest} onChange={(e) => setNewDest(e.target.value)} options={hubOptions.filter((h) => h.value !== newOrigin)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <TextField label="Airline Code" value={newAirline} onChange={(e) => setNewAirline(e.target.value.toUpperCase())} placeholder="e.g. VK" mono />
-            <TextField label="Flight Number" value={newFlight} onChange={(e) => setNewFlight(e.target.value.toUpperCase())} placeholder="e.g. VK-402" mono />
+            <TextField label="Airline code" value={newAirline} onChange={(e) => setNewAirline(e.target.value.toUpperCase())} placeholder="e.g. VK" mono />
+            <TextField label="Flight number" value={newFlight} onChange={(e) => setNewFlight(e.target.value.toUpperCase())} placeholder="e.g. VK-402" mono />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <TextField label="Departure Date" type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
-            <TextField label="Departure Time" type="time" value={newTime} onChange={(e) => setNewTime(e.target.value)} />
+            <TextField label="Date" type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
+            <TextField label="Time" type="time" value={newTime} onChange={(e) => setNewTime(e.target.value)} />
           </div>
-          <Select label="Aircraft Type" value={newAircraft} onChange={(e) => { setNewAircraft(e.target.value); setNewCapacity(DEFAULT_CAPACITIES[e.target.value] ?? 5000); }} options={AIRCRAFT_OPTIONS} />
-          <TextField label="Payload Capacity (kg)" type="number" value={newCapacity} onChange={(e) => setNewCapacity(Number(e.target.value))} mono hint="Max gross weight this aircraft can carry" />
+          <Select label="Aircraft" value={newAircraft} onChange={(e) => { setNewAircraft(e.target.value); setNewCapacity(DEFAULT_CAPACITIES[e.target.value] ?? 5000); }} options={AIRCRAFT_OPTIONS} />
+          <TextField label="Weight limit (kg)" type="number" value={newCapacity} onChange={(e) => setNewCapacity(Number(e.target.value))} mono hint="The most this aircraft can carry" />
         </div>
       </Modal>
 
-      {/* Dispatch Modal */}
-      <Modal isOpen={showDispatch} onClose={() => { setShowDispatch(false); setDispatchResult(null); }} title="Confirm Flight Dispatch"
-        description={manifest ? `Mark Flight ${manifest.flight_number} AIRBORNE. All ${manifest.items.length} AWBs will be set to DEPARTED.` : ""}
+      {/* Send-off modal */}
+      <Modal isOpen={showDispatch} onClose={() => { setShowDispatch(false); setDispatchResult(null); }} title="Send this flight off?"
+        description={manifest ? `This marks Flight ${manifest.flight_number} and all ${manifest.items.length} shipments as departed.` : ""}
         footer={dispatchResult ? (
           <Button variant="primary" onClick={() => { setShowDispatch(false); setDispatchResult(null); }}>Done</Button>
         ) : (
           <><Button variant="ghost" onClick={() => setShowDispatch(false)}>Cancel</Button>
-          <Button variant="primary" iconLeft="flight_takeoff" loading={dispatching} loadingLabel="Dispatching..." onClick={handleDispatch}>Confirm Dispatch</Button></>
+          <Button variant="primary" iconLeft="flight_takeoff" loading={dispatching} loadingLabel="Sending…" onClick={handleDispatch}>Send off</Button></>
         )}>
         {dispatchResult ? (
           <div className="p-4 rounded-xl bg-success-bg border border-success-border text-success-fg text-sm flex items-center gap-3"><Icon name="check_circle" size={20} /><span>{dispatchResult}</span></div>
         ) : (
           <div className="flex flex-col gap-4 text-xs">
-            {isOverloaded && <div className="p-3 rounded-lg bg-error-bg border border-error-border text-error-fg flex items-center gap-2"><Icon name="warning" size={14} className="shrink-0" /><strong>Overload Warning:</strong> Exceeds payload by {(totalWeightKg - (manifest?.payload_capacity_kg ?? 0)).toFixed(1)} kg.</div>}
+            {isOverloaded && <div className="p-3 rounded-lg bg-error-bg border border-error-border text-error-fg flex items-center gap-2"><Icon name="warning" size={14} className="shrink-0" /><strong>Over the weight limit</strong> by {(totalWeightKg - (manifest?.payload_capacity_kg ?? 0)).toFixed(1)} kg.</div>}
             <div className="grid grid-cols-3 gap-3 text-center">
-              {[{ label: "Total AWBs", value: `${manifest?.items.length}` }, { label: "Total Pieces", value: `${totalPieces}` }, { label: "Gross Weight", value: `${totalWeightKg.toFixed(1)} kg` }].map((kpi) => (
+              {[{ label: "Shipments", value: `${manifest?.items.length}` }, { label: "Items", value: `${totalPieces}` }, { label: "Weight", value: `${totalWeightKg.toFixed(1)} kg` }].map((kpi) => (
                 <div key={kpi.label} className="p-3 rounded-lg bg-surface-sunken border border-border-subtle"><div className="text-muted text-[10px]">{kpi.label}</div><div className="font-black font-mono text-lg text-foreground">{kpi.value}</div></div>
               ))}
             </div>
-            <p className="text-muted">Once dispatched, all AWBs are locked as DEPARTED. This cannot be undone.</p>
+            <p className="text-muted">This marks every shipment as departed. You can't undo it.</p>
           </div>
         )}
       </Modal>
 
-      {/* All Manifests Modal */}
-      <Modal isOpen={showList} onClose={() => setShowList(false)} title="All Flight Manifests" description={`${manifests.length} manifests at ${stationCode} station.`}>
+      {/* All flights modal */}
+      <Modal isOpen={showList} onClose={() => setShowList(false)} title="All flights" description={`${manifests.length} flights at ${stationCode}.`}>
         <div className="flex flex-col divide-y divide-border-subtle">
           {manifests.map((m) => {
             const cfg = STATUS_CFG[m.status];
@@ -399,8 +403,8 @@ export const FlightManifestBuilder: React.FC<FlightManifestBuilderProps> = ({
                 className="flex items-center justify-between p-3 hover:bg-surface-hover rounded-lg transition-colors cursor-pointer text-left group">
                 <div>
                   <div className="font-mono font-bold text-sm text-foreground">{m.flight_number}</div>
-                  <div className="text-[11px] text-muted">{m.manifest_number} \u00b7 {m.origin_hub_id} \u2192 {m.destination_hub_id} \u00b7 {m.departure_date}</div>
-                  <div className="text-[11px] text-muted">{m.items.length} AWBs loaded</div>
+                  <div className="text-[11px] text-muted">{m.manifest_number} · {m.origin_hub_id} → {m.destination_hub_id} · {m.departure_date}</div>
+                  <div className="text-[11px] text-muted">{m.items.length} shipments</div>
                 </div>
                 <div className="flex items-center gap-2">
                   {cfg && <Badge tone={cfg.tone} size="sm">{m.status}</Badge>}
